@@ -8,27 +8,75 @@ OpenBlight.addresses = {
   search: function(){
     var json_path = window.location.toString().replace(/search\?/i, 'search.json\?');
 
-    OpenBlight.addresses.createSearchResultsMap();
-    OpenBlight.addresses.populateMap(json_path, {},  function(){
-      OpenBlight.addresses.fitPointersOnMap();
-    });
+    $.when(
+      OpenBlight.addresses.createSearchResultsMap()
+     ).then(function () {
+        OpenBlight.addresses.populateMap(json_path, {},  function(){
+          OpenBlight.addresses.fitPointersOnMap();
+          $('.address').on('click', function(index){
+            window.location = '/addresses/' + $(this).attr('data-id');
+          });
+        });
+     });
   },
 
   show: function(){
     $(".property-status").popover({placement: 'bottom'});
 
-<<<<<<< HEAD
     OpenBlight.addresses.highlightCaseHistory();
     OpenBlight.addresses.mapAddresses();
     OpenBlight.accounts.subscriptionButton();
+    OpenBlight.addresses.showHistory();
+
+    $('.property-history .case').hide();
+
+    if($('.case-status-open').length){
+      $('.case-status-open').first().show();
+    }
+    else{
+      $('.case').first().show();
+    }
   },
 
 
   /**
    * Local methods
    */
+
+  showHistory: function(){
+    if($('.property-history .case').length > 1){
+      $('#show-history').show();
+    }
+
+    $("#show-history").toggle(function() {
+      $("#show-history").html(' Hide Historical Cases ');
+      $('.property-history .case').show();
+    }, function(){
+      $('.property-history .case').each(function(index){
+
+        if($('.case-status-open').length > 0){
+          if(!$(this).hasClass('case-status-open')){
+            $("#show-history").html(' Show Historical Cases ');
+            $(this).hide();          
+          }          
+        }
+        else{
+          if(index == 0){
+            $($('.case').get(index)).show();
+          }
+          else{
+            $($('.case').get(index)).hide();            
+          }
+          // console.log($('.case').get(0).show());          
+          // $().show();
+        }
+      });
+    });
+  },
+
   createSearchResultsMap: function(){
-    wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
+    var deferred = jQuery.Deferred();
+    var ready = wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
       var y = 29.96;
       var x = -90.08;
 
@@ -45,23 +93,11 @@ OpenBlight.addresses = {
       OpenBlight.addresses.map.on('dragend', function(e){
         if($('#map-search-mode').attr('checked')){
           OpenBlight.addresses.mapSearchByBounds();
-=======
-      var x, y, map, CustomIcon, dotIcon;
-
-        // this should not be hard coded. do json request?
-      x = $("#address").attr("data-x");
-      y = $("#address").attr("data-y");
-
-      CustomIcon = L.DivIcon.extend({
-        options: {
-          iconSize: [ 22, 37 ],
-          iconAnchor: [ 0, 0 ],
-          popupAnchor: [ 11, 0 ],
-          className: "dotmarker"
->>>>>>> ea08a42a78036a24d7693a45b610fab418b130c7
         }
       });
+      deferred.resolve();
     });
+    return deferred;
   },
 
 
@@ -70,7 +106,7 @@ OpenBlight.addresses = {
       OpenBlight.addresses.markers = [];
 
       var features = [];
-      for(i = 0; i < data.length -1; i++){
+      for(i = 0; i < data.length; i++){
         features.push(data[i].point);
       }
 
@@ -80,28 +116,23 @@ OpenBlight.addresses = {
       var current_feature = 0;
       var icon = OpenBlight.addresses.getCustomIcon();
 
-<<<<<<< HEAD
       OpenBlight.addresses.layergroup = L.geoJson(features, {
         pointToLayer: function (feature, latlng) {
           return L.marker(latlng, {icon: new icon() });
         },
-=======
-      map = new L.Map('map')
-        .addLayer(new L.TileLayer.WMS("http://http://gis.nola.gov/ArcGIS/rest/services/basemapcache_wgs/MapServer",{
-          layers: '0,1,2,3,4',
-          format: 'image/png'
-        }))
-        .addLayer(new L.Marker(new L.LatLng(y , x), {icon: dotIcon} ))
-        .setView(new L.LatLng(y , x), 17);
->>>>>>> ea08a42a78036a24d7693a45b610fab418b130c7
 
         onEachFeature: function(feature, layer) {
           var point = feature.coordinates;
           var y = point[1], x= point[0];
           var link = '/addresses/'+ data[current_feature].id;
-          var popupContent = '<h3><a href="' + link + '">' + data[current_feature].address_long + '</a></h3>' + 
-          '<img src="http://maps.googleapis.com/maps/api/streetview?location='+y+','+x+'&size=200x100&sensor=false" >';
-          '<p>'+ data[current_feature].most_recent_status_preview.type + ' on ' + data[current_feature].most_recent_status_preview.date + '</p>';
+          var popupContent = '<h3><a href="' + link + '">' + data[current_feature].address_long + '</a></h3>';
+
+          if(data[current_feature].latest_type && data[current_feature].latest_type.length){
+            popupContent = popupContent + '<hr class="soften"/><p>The most recent activity is: <br><b>'+ data[current_feature].latest_type + '</b></p>';
+          }
+          else{
+            popupContent = popupContent + '<hr class="soften"/><p>A case has been created: <br><b>No further steps have taken place</b></p>';            
+          }
           layer.id = data[current_feature].id;
           OpenBlight.addresses.markers.push( layer );
 
@@ -118,7 +149,6 @@ OpenBlight.addresses = {
         }
       }).addTo(OpenBlight.addresses.map);
 
-<<<<<<< HEAD
       $('ul.nav').removeClass('loading');
       $('#loading').hide();
       if (typeof callbacks  === 'function') {
@@ -126,8 +156,6 @@ OpenBlight.addresses = {
       }
       OpenBlight.addresses.associateMarkers();
     });
-=======
->>>>>>> ea08a42a78036a24d7693a45b610fab418b130c7
   },
 
   highlightCaseHistory: function(){
@@ -143,7 +171,7 @@ OpenBlight.addresses = {
     $(".map-address").each(function(index, address){
       wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
         var x, y, map;
-        var icon = OpenBlight.addresses.getCustomIcon();
+        var icon = OpenBlight.addresses.getCustomIcon('dotmarker');
 
         x = $(address).attr("data-x");
         y = $(address).attr("data-y");
@@ -220,15 +248,44 @@ OpenBlight.addresses = {
     OpenBlight.addresses.populateMap('/addresses/map_search', bounds);
   },
 
-  getCustomIcon: function(){
+
+  /**
+   * Local Methods
+   */
+
+  bindMapCheckbox: function(){
+
+    $('#map-search-mode').on('change', function(index){
+      if($(this).prop('checked')){
+        $(this).addClass('disabled');
+      }
+      else{
+        $(this).removeClass('disabled');
+      }
+    });
+  },
+
+  getCustomIcon: function(classname){
+    classname = (typeof classname == 'string') ? classname : 'marker';
     return L.DivIcon.extend({
       options: {
         iconSize: [ 22, 37 ],
         iconAnchor: [ 0, 0 ],
         popupAnchor: [ 11, 0 ],
-        className: "marker"
+        className: classname
       }
     });
+  },
+
+  getCircleIcon: function(classname){
+    return {
+        radius: 3,
+        fillColor: "#ff7800",
+        color: "#000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    };
   },
 
   fitPointersOnMap: function(){

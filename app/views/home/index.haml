@@ -3,17 +3,64 @@
     .row
       .home-search
         .search-bubble
-          %h1 What's the status?
+          %h1 What’s the status?
           %br.search-form
           =form_tag("/addresses/search", :method => "get") do
             .search-field
-              =text_field_tag 'address', '', :placeholder => "Example: 2326 Gravier St", :id => "main-search-field"
+              =text_field_tag 'address', '', :placeholder => "Example: 1708 St Roch Ave", :id => "main-search-field"
             .search-button
               =submit_tag("Search", :class => 'btn btn-primary btn-primary-search')
           %span.help-block Enter any street name or address within Orleans Parish, Louisiana
           .speak-bubble
         .home-illustration
-        %h3.tag-line Find out what’s going on with properties in New Orleans.
+        %h3.tag-line Find out what the city is doing about blighted properties in New Orleans
+
+    %br
+    %br
+    %br
+    / %br
+    / %br
+    / %hr.soften
+    .row
+      %h3.tag-line{:style => "text-transform: uppercase; font-size: 200%; padding-bottom: 20px; width: 50%; margin-left: 250px"}
+        Try some example searches:
+
+    .row.frontpage-screenshot
+      .span4
+        =link_to(image_tag("specific-address.png", :alt => "View single address"), "/addresses/151886")
+        %h3
+          %b
+            Specific address:
+          %br
+            1708 St Roch Ave
+
+          
+
+
+      .span4
+        =link_to(image_tag("streetname.png", :alt => "View street"), "/addresses/search?utf8=✓&address=N+Miro&commit=")
+        %h3
+          %b
+            Street name:
+          %br
+          N Miro Street
+
+
+      / .span3
+      /   =link_to(image_tag("neighborhood.png", :alt => "View neighborhood"), "/addresses/search?utf8=✓&address=mid-city&commit=Search")
+      /   %h3
+      /     %b
+      /       Neighborhood name:
+      /     %br
+      /     Mid-City
+
+      .span4
+        =link_to(image_tag("citywide.png", :alt => "Browse map"), "/browse")
+        %h3
+          %b
+            Or browse the map
 
 
     .clear
+
+

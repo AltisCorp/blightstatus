@@ -1,7 +1,7 @@
 #move this to better spot
 class String
   def single_space
-    self.split.join(' ')
+    self.split.join(' ').strip
   end
 end
 
@@ -158,7 +158,6 @@ module AddressHelpers
     uri = URI.parse("http://maps.googleapis.com/maps/api/geocode/json?latlng=#{lat},#{long}&sensor=true")
     response = Net::HTTP.get(uri)
     result = JSON.parse(response)
-    puts result['results'][0]['address_components'][2]['long_name']
   end
 
   def find_address(orig_address)
@@ -204,8 +203,7 @@ module AddressHelpers
     address = Address.where("house_num = ? and street_name = ?", "#{address_string.split(' ')[0]}", "#{address_street}")
     return address if !address.empty?
 
-
-    puts "Not matched. Original address: #{orig_address}            Processed address: #{address_string}"
+    puts "----NOT FOUND------. Original address: #{orig_address}            Processed address: #{address_string}"
     []
   end
 

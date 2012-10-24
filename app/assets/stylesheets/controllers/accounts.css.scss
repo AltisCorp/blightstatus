@@ -1,67 +1,235 @@
 @import "variables.css.scss";
 
+.container-registrations, .container-sessions, .container-passwords{
+
+  .container-accounts{
+    margin-top: 50px;
+  }
+
+
+}
+
+
 .container-accounts{
 
   padding-bottom: 400px !important;
 
-
+//  margin-top: 100px;
+  .accounts-page{
+    margin-top: 50px;
+  }
   .notice{
     background-color: white;
-    margin: 20px;
-    //    padding: 20px 35px;
     clear:both;
     text-align: center;
+    padding-left: 0;
+    margin-left: 0;
+
 
     p{
       font-size: 135%;
       margin: 5px 0;
       color: $orange;
     }
+    h2{
+      padding: 0;
+      margin: 0;
+    }
   }
 
-//	#subscriptions{
+  h1{
 
-    .subscription{
-      h3{
-        font-size: 220%;
+    color: #58595B;
+    font-family: "Lato";
+    padding: 0 0 30px 20px;
+    text-align: left;
+  }
+
+  .btn-group > .btn{
+    color: white;
+    border-radius: 5px;
+    text-transform: uppercase;    
+  }
+
+  .email-notification{
+    position: fixed;
+    top: 400px;
+
+    label, input {
+      float: left;
+      margin-left: 10px;
+    }
+  }
+
+  .subscription{
+    margin: 0 0 40px;
+
+    .additional-address-information{
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    h2 {
+
+      font-family: "Lato";
+      font-size: 200%;
+      font-weight: 300;
+      padding-left: 0;
+      margin-left: 0;
+      text-align: left; 
+      color: #58595B; 
+
+      &:hover{
+        text-decoration: none;
       }
+
+    }
+    h3{
+      font-family: "Lato";
+      font-size: 150%;
+      font-weight: 300;
+//      margin: 15px;
+//      padding: 3px 8px;
+      text-align: left; 
+      color: #58595B; 
+
+    }
+  }
+
+
+	.view-property, .subscribe{
+		display: inline;
+	}
+
+	.property-status{
+		padding: 0 10px;
+	}
+
+  .map{
+    padding: 10px;
+  }
+
+  #map{
+    position: relative;
+    position: fixed;
+    border: 1px solid #aaa;
+
+  }
+
+
+
+
+
+  .leaflet-map{
+    border: 1px solid #aaa; 
+    padding: 0 10px 0 0; 
+    width: 250px; 
+    height: 200px;
+  }
+
+  .progress-bar{
+    padding: 0;
+    margin: 30px 20px 50px;
+
+
+    .progress-bar-wrapper{
+
+      margin-top: 10px;
+    }
+    .table{
+      margin-left: 0;
+      padding-left: 0;
+    }
+  }    
+
+  #no-subscriptions-found{
+    display: none;
+    font-size: 120%;
+//display: none;
+
+    h2{
+      font-family: "Lato";
+      font-size: 150%;
+      font-weight: 300;
+      text-align: left;  
+      margin: 0 15px;
+      color: inherit;      
     }
 
+  }
 
-		.view-property, .subscribe{
-			display: inline;
-		}
+  .additional-address-information{
+    h2{
+      margin-top: 20px;
+      display: none;
+    }
+    .soften{
+      display: none;
+    }
+  }
 
-		.property-status{
-			padding: 0 10px;
-		}
+  #no-subscriptions-found{
+    font-weight: 300;
+  }
+
+
+
+  .subscription,#no-subscriptions-found{
+
+    background-color: white;
+    border: 1px solid #CCCCCC;
+    border-radius: $borderRadius;
+    box-shadow: 2px 1px 2px #F1F1F1;
+    margin: 0 0 40px;
+    padding: 20px;
+
+
+
+
+    h3{
+      padding-left: 0px;
+    }
+
 
     .map{
-      padding: 10px;
+      float: left;
+
+      #address{
+        width: 300px !important;
+        border: 1px solid #aaa;
+      }
+
     }
 
-    #map{
-      position: relative;
-      position: fixed;
+    .subscribe{
 
     }
+    .image{
 
-
-
-    .leaflet-map{
-      border: 1px solid #aaa; 
-      padding: 0 10px 0 0; 
-      width: 250px; 
-      height: 200px;
+        img{
+          border: 1px solid #AAAAAA;
+          max-width: 100%;
+          padding: 1px;
+          vertical-align: middle;
+        }
     }
 
-    .progress-bar{
-      float: right; 
-      padding: 0;
-      width: 570px;
-    }    
+    &.no-subscription{
+      text-align: left;
+      padding: 20px 40px;
+    }
+  }
+
+  #subscriptions-information{
+
+  }
+}
 
 
-//	}
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+
+#map, .email-notification{
+  position: absolute !important;
+}
+
 }
 

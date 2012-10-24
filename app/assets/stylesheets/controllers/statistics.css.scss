@@ -4,101 +4,172 @@
 
 @import "variables.css.scss";
 
+#no-data, #map-loading{
+  width: 30%;
+  display: none;
+}
+
+.browse-page{
+
+  #map{
+    height: 550px; 
+    border: 1px solid #aaa;
+    width: 100%;
+    min-width: 500px;   
+  }
+}
 .container-statistics{
-	
-	.inner{
-		width: 70%;
-		margin: 0 auto;
-	}
-
-	.btn-group > input {
-		display: none;
-	}
-
-	.btn-group input + .btn {
-	   /* This is an actual copy/paste of the .btn-group .btn:first-child style */
-	  border-radius: 4px;
-	  border-radius: 4px;
-	  margin-left: 0;
-	  margin: 5px 0;
-	  color: white;
-
-	}
 
 
-	#checkbox-inspections + label.btn{
-		background-color: $inspections;
-	}
+  select{
+    width: 185px;
+  }
+  .inner{
+    width: 70%;
+    margin: 0 auto;
+  }
 
 
-	#checkbox-hearings + label.btn{
-		background-color: $hearings;
+  .btn-group > input {
+    display: none;
+  }
 
-	}
-	
-	#checkbox-judgements + label.btn{
-		background-color: $judgements;
-	}
-	
-	#checkbox-demolitions + label.btn, #checkbox-abatement + label.btn{
-		background-color: $demolitions;
-	}
+  .btn-group input + .btn {
+     /* This is an actual copy/paste of the .btn-group .btn:first-child style */
+    border-radius: 4px;
+    border-radius: 4px;
+    margin-left: 0;
+    margin: 5px 0;
+    color: white;
 
-	input:checked + label.btn {
-	  /* This is an actual copy/paste of the .btn:active style */
-	  background-color: #E6E6E6;
-	  background-image: none;
-	  box-shadow: 0 2px 4px rgba(0, 0, 0.5, 0.9) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
-	  color: rgba(255, 255, 255, 0.8);
-	  outline: 0 none;
-	  opacity: 0.5;
-
-	}
+  }
 
 
-
-	input[disabled] + label.btn {
-	  /* This is an actual copy/paste of the .btn:disabled style */
-	  background-color: #E6E6E6;
-	  background-image: none;
-	  box-shadow: none;
-	  cursor: default;
-	  opacity: 0.55;
-	}
+  #start_date_start_date_2i, #start_date_start_date_1i{
+    width: 90px;
+  }
 
 
+  table{
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 130%;
+    text-align: center;
 
-	#stats-map{
-		border: 1px solid $grey;
-	}
+    td{
+      padding: 20px 10px 10px;
+    }
 
-	.layout-wrapper{
-		width: 100%;
-		position: relative;
-		margin: 25px;
-		font-size: 120%;
+    thead{
+      font-size: 100%;
+      font-weight: bold;
+      margin-bottom: 20px;
+      span{
+        border-bottom: 1px solid;
+        padding: 1px 3px;
+      }
+    }
+    tbody{
+      padding: 10px;
+      font-size: 50px;
+    }
 
-		.layout-slider{
-			width: 500px;
-			margin: 0 auto;
-		}
+  
 
-		.timeline-range{
-			display: none;
-		}
+  }
 
-		.current-year{
-			position: absolute;
-			top: 0px;
-			right: 160px;
-		}
+  #checkbox-inspections + label.btn{
+    background-color: $inspections;
+  }
 
-		.previous-year{
-			position: absolute;
-			top: 0px;
-			left: 170px;
-		}
-	}
+
+  #checkbox-hearings + label.btn{
+    background-color: $hearings;
+
+  }
+  
+  #checkbox-judgements + label.btn{
+    background-color: $judgements;
+  }
+  
+  #checkbox-demolitions + label.btn, #checkbox-abatement + label.btn{
+    background-color: $demolitions;
+  }
+
+  input:checked + label.btn {
+    /* This is an actual copy/paste of the .btn:active style */
+    background-color: #E6E6E6;
+    background-image: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0.5, 0.9) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    outline: 0 none;
+    opacity: 0.5;
+
+  }
+
+
+
+  input[disabled] + label.btn {
+    /* This is an actual copy/paste of the .btn:disabled style */
+    background-color: #E6E6E6;
+    background-image: none;
+    box-shadow: none;
+    cursor: default;
+    opacity: 0.55;
+  }
+
+
+
+  #stats-map{
+    border: 1px solid #ccc;
+  }
+
+  .layout-wrapper{
+    width: 100%;
+    position: relative;
+    margin: 25px;
+    font-size: 120%;
+
+    .layout-slider{
+      width: 500px;
+      margin: 0 auto;
+    }
+
+    .timeline-range{
+      display: none;
+    }
+
+    .current-year{
+      position: absolute;
+      top: 0px;
+      right: 160px;
+    }
+
+    .previous-year{
+      position: absolute;
+      top: 0px;
+      left: 170px;
+    }
+  }
+
+  .selectboxit, .selectboxit-options{
+    width: auto;
+    min-width: 170px;
+    margin: 0 5px;
+  }
+  .selectboxit{
+    border: 1px solid #ccc;
+    font-family: "Lato";
+    font-weight: 300;
+    text-transform: capitalize;
+    background: inherit;
+    background: #FDFDFD;
+  }
+  .selectboxit-text{
+    text-indent: 15px;    
+    line-height: 32px !important;
+  }
+
 
 }
 

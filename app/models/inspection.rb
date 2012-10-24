@@ -5,6 +5,18 @@ class Inspection < ActiveRecord::Base
 
   validates_uniqueness_of :inspection_date, :scope => :case_number
 
+  after_save do
+    if self.case
+      self.case.update_status(self)
+    end
+  end
+
+  after_destroy do
+    if self.case
+      self.case.update_last_status
+    end
+  end
+
   def date
     self.inspection_date || self.scheduled_date || DateTime.new(0)
   end
@@ -12,6 +24,8 @@ class Inspection < ActiveRecord::Base
   def notes
   	self.result
   end
+
+
 
   def self.matched_count
   	Inspection.count(:conditions =>'case_number is not null')

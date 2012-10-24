@@ -23,7 +23,6 @@
 //= require jquery-cookie
 //= require jquery.slider.min.js
 //= require bootstrap.min.js
-//= require leaflet.markercluster-src.js
 //= require init
 //= require_directory ./controllers
 

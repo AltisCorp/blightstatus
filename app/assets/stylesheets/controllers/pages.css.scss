@@ -12,7 +12,7 @@
 
   .about-page-content{
 
-    margin-top: 20px;
+    margin-top: 50px;
 
     h2{
       font-size: $largestFontSize;
@@ -21,11 +21,13 @@
 
     h4{
       font-size: $largeFontSize;
+      font-weight: bold;
       padding-left: 0;
     }
     p, h4{
     }
   }
+
 
 
   .timeline{
@@ -57,11 +59,8 @@
     border-width: 0 1px 1px 1px;
   }
 
-  .tab-content {
-    width: 930px;
-  }
 
-  .our-partners{
+  .our-partners, .our-supporters{
     .code-for-america{
       background: url("/assets/partner-logos.png") no-repeat scroll 7px -60px transparent;
       width: 135px;
@@ -82,9 +81,32 @@
       height: 50px;
       float: left;
     }
+
+
+
+    .gnof{
+      background: url("/assets/gnof_logo.png") no-repeat scroll 10px 5px transparent;
+      float: left;
+      height: 150px;
+      width: 99px;
+    }
+
+    .osf{
+      background: url("/assets/OSF_logo.png") no-repeat scroll 10px 0 transparent;
+      float: right;
+      height: 60px;
+      width: 200px;
+
+    }
+    .ford{
+      background: url("/assets/Ford_logo.png") no-repeat scroll 10px 0 transparent;
+      float: right;
+      height: 60px;
+      width: 200px;
+    }
   }
 
-  .meet-the-team, .our-partners, .get-in-touch{
+  .meet-the-team, .our-partners, .our-supporters, .get-in-touch{
     margin-bottom: 40px;
     h2{
       font-weight: 300;
@@ -108,7 +130,7 @@
     }
   }
 
-  .meet-the-team{
+  .our-partners, .meet-the-team{
     h2{
       margin-top: 0px;
     }
@@ -117,7 +139,7 @@
   .about-page-content{
     .left-bar{
       border-left: medium none;
-      border-radius: 30px;
+      border-radius: $borderRadius;
       border-top: medium none;
       min-height: 500px;
       padding: 20px 45px 45px;

@@ -13,11 +13,13 @@ gem 'roo' #excel parser
 gem 'docsplit'
 gem 'rubyXL'
 gem 'devise'
-#gem "cancan"
+gem 'devise-async'
 
 gem 'lama', :git => 'https://github.com/gangleton/lama.git'
 gem 'savon'
 gem "httpclient", "~> 2.1.5"
+
+gem 'delayed_job_active_record'
 
 # GIS 
 gem 'rgeo'
@@ -35,6 +37,7 @@ gem 'thin'
 
 gem 'newrelic_rpm'
 
+gem 'debugger'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -61,6 +64,11 @@ group :test, :development do
   gem "faker"
 
   gem "simplecov"
+end
+
+group :development do
+  gem 'awesome_print'
+  gem 'letter_opener'
 end
 
 group :test do

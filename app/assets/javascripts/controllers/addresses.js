@@ -6,6 +6,7 @@ OpenBlight.addresses = {
   },
 
   search: function(){
+
     var json_path = window.location.toString().replace(/search\?/i, 'search.json\?');
 
     $.when(
@@ -67,8 +68,6 @@ OpenBlight.addresses = {
           else{
             $($('.case').get(index)).hide();            
           }
-          // console.log($('.case').get(0).show());          
-          // $().show();
         }
       });
     });
@@ -115,6 +114,8 @@ OpenBlight.addresses = {
 
       var current_feature = 0;
       var icon = OpenBlight.addresses.getCustomIcon();
+
+
 
       OpenBlight.addresses.layergroup = L.geoJson(features, {
         pointToLayer: function (feature, latlng) {
@@ -252,7 +253,6 @@ OpenBlight.addresses = {
   /**
    * Local Methods
    */
-
   bindMapCheckbox: function(){
 
     $('#map-search-mode').on('change', function(index){
@@ -267,6 +267,7 @@ OpenBlight.addresses = {
 
   getCustomIcon: function(classname){
     classname = (typeof classname == 'string') ? classname : 'marker';
+
     return L.DivIcon.extend({
       options: {
         iconSize: [ 22, 37 ],

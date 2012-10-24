@@ -6,59 +6,83 @@ OpenBlight.accounts = {
   },
 
   /**
-   * Controller method
+   * Controller methods
    */
   index: function(){
-    OpenBlight.accounts.account_page = true;  
-
-    
+    OpenBlight.accounts.account_page = true;
     OpenBlight.accounts.subscriptionButton()
     OpenBlight.accounts.createAccountsMap();
-
-
-
+    OpenBlight.accounts.bindDeliveryToggle();
+    OpenBlight.accounts.showAccountGuide();
 
   },
 
-
-  /**
-   * Controller method
-   */
   map: function(){
     OpenBlight.accounts.createSubscriptionMap();
   },
 
-
-
-
-
   /**
    * Local methods
    */
+
+  bindDeliveryToggle: function(){
+    $("input#account_send_notifications").click(function(e){
+      data = $(this).parent('form').serialize();
+      $.post("/accounts/notify", data, function(data){
+        if(data.saved == false){
+          //do something if it fails
+        }
+      });
+    });
+  },
+
+  showAccountGuide: function(){
+
+    if($('#no-subscriptions-found').length){
+
+      if($('.subscription').length > 0){
+        // console.log('is 0')
+        $('#no-subscriptions-found').hide();
+        // $('#subscriptions-information').show();
+      }
+      else{
+        // console.log('is greater 0');
+        $('#no-subscriptions-found').show();
+        // $('#subscriptions-information').hide();
+      }
+
+    }
+
+  },
+
+
   subscriptionButton: function(){
     $(".subscribe-button").bind("ajax:success",
        function(evt, data, status, xhr){
+
         if($(this).data('method') == 'delete'){
-          
           if(OpenBlight.accounts.account_page){
             $(this).parentsUntil('.subscription').parent().fadeOut('slow');
+            $(this).parentsUntil('.subscription').parent().remove();
           }
           else{
-            $(this).html('Add Watchlist');
-            $(this).data('method', 'put')           
+            $(this).html('<img src="/assets/+icon.png" class="add-icon"> Watchlist');
+            $(this).data('method', 'put');
           }
         }
         else{
-          $(this).html('Remove Watchlist');
+          $(this).html('Watching');
           $(this).data('method', 'delete')
         }
+
+        OpenBlight.accounts.showAccountGuide();
+
       }).bind("ajax:error", function(evt, data, status, xhr){
         //do something with the error here
         // console.log(data);
         // $("div#errors p").text(data);
     });
   },
-
 
   createSubscriptionMap: function(){
     wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
@@ -79,11 +103,8 @@ OpenBlight.accounts = {
         });
 
         map.addControl(drawControl);
-        
 
         OpenBlight.accounts.loadPolygon(map);
-
-        
 
         map.on('drawend', function(e) {
           //popup.setContent(popupContent);
@@ -93,10 +114,7 @@ OpenBlight.accounts = {
     });
   },
 
-
   createAccountsMap: function(){
-
-
     var ready = wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
       var y = 29.96;
       var x = -90.08;
@@ -108,46 +126,49 @@ OpenBlight.accounts = {
         boxZoom: false
       });
 
+
       OpenBlight.accounts.map.addLayer(new wax.leaf.connector(tilejson))
       OpenBlight.accounts.map.setView(new L.LatLng(y , x), zoom);
 
       var json_path = '/accounts.json'
       OpenBlight.accounts.populateMap(json_path);
-
     });
-
   },
 
-
-
   populateMap: function(json_path){
-
     jQuery.getJSON(json_path, {}, function(data) {
       OpenBlight.accounts.markers = [];
 
       var features = [];
-      var icon = OpenBlight.addresses.getCustomIcon();
+      var icon = OpenBlight.addresses.getCustomIcon('dotmarker');
 
-      for(i = 0; i < data.length -1; i++){
+      for(i = 0; i < data.length; i++){
         features.push(data[i].point);
       }
 
+      var current_feature_id = 0;
       L.geoJson(features, {
         pointToLayer: function (feature, latlng) {
           OpenBlight.accounts.markers.push( latlng );          
           return L.marker(latlng, {icon: new icon() });
+        },
+
+        onEachFeature: function(feature, layer) {
+           $(layer).on('click', function(){
+
+            var select_subcription = "subscription-" + data[current_feature_id].id;
+            OpenBlight.common.goToByScroll(select_subcription, 'slow', '150');
+            current_feature_id = current_feature_id +1;
+
+            $('#' + select_subcription).animate({ backgroundColor: "#FFFFE0" }, 'slow').animate({ backgroundColor: "white" }, 'fast');
+          });
         }
+
       }).addTo(OpenBlight.accounts.map);
 
-
       OpenBlight.accounts.map.fitBounds(OpenBlight.accounts.markers);
-
     });
-
   },
-
-
-
 
   savePolygon: function (e){
     // console.log(e);

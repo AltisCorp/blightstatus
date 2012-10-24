@@ -2,6 +2,19 @@ class Notification < ActiveRecord::Base
 	belongs_to :case, :foreign_key => :case_number, :primary_key => :case_number
   
   validates_uniqueness_of :notified, :scope => [:case_number, :notification_type]
+  validates_uniqueness_of :case_number, :scope => :notified
+
+  after_save do
+    if self.case
+      self.case.update_status(self)
+    end
+  end
+
+  after_destroy do
+    if self.case
+      self.case.update_last_status
+    end
+  end
 
   def date
     return DateTime.new(0) if notified.nil?
@@ -27,5 +40,13 @@ class Notification < ActiveRecord::Base
 
   def self.types
   	Notification.count(group: :notification_type)
+  end
+
+  def self.results
+    Notification.count(group: :notification_type)
+  end
+
+  def self.without_inspection
+    Hearing.find_by_sql("select n.* from notifications n where not exists (select * from inspections i where i.case_number = n.case_number)")
   end
 end

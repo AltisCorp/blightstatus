@@ -2,7 +2,7 @@ OpenBlight = {
   common: {
     init: function() {
       // application-wide code
-      OpenBlight.common.show_disclaimer();
+      // OpenBlight.common.show_disclaimer();
       OpenBlight.common.handle_auto_complete_address();
       OpenBlight.common.dropdownLoginForm();
 
@@ -16,6 +16,9 @@ OpenBlight = {
             return this.charAt(0).toUpperCase() + this.slice(1);
         }
       }
+
+      $('.tooltip-hover').tooltip('hide')
+
     },
 
     dropdownLoginForm: function(){
@@ -33,8 +36,12 @@ OpenBlight = {
       });
     },
 
-    goToByScroll: function(id){
-      $('html,body').animate({scrollTop: $("#"+id).offset().top},'fast');
+    goToByScroll: function(id, speed, offset_){
+
+      speed = (typeof speed == 'string') ? speed : 'slow';
+      offset_ = (typeof offset_ != 'undefined') ? offset_ : 0;
+
+      $('html,body').animate({scrollTop: $("#"+id).offset().top - parseInt(offset_) }, speed);
     },
 
     handle_auto_complete_address: function(){
@@ -63,7 +70,20 @@ OpenBlight = {
       $('#legal-disclaimer .btn-primary').click(function(){
         $.cookie('agree_to_legal_disclaimer', true);
       })
+
+      $('#subscribe-to-notification').click(function(){
+
+        $.post("http://www.blightstatus.com/signup", {email : $('#signup-post-email').val() }, function(data){
+          if(data.saved == false){
+            //do something if it fails
+          }
+        });
+
+
+      });
+
     }
+
   }
 };
 

@@ -1,9 +1,10 @@
 Openblight::Application.routes.draw do
 
-#  devise_for :accounts
+  devise_for :admins
   devise_for :accounts
+
   resources :subscriptions
-  
+
   get "statistics/show"
 
   # The priority is based upon order of creation:
@@ -25,20 +26,17 @@ Openblight::Application.routes.draw do
   match "addresses/addresses_with_case" => "addresses#addresses_with_case"
   match "addresses/redirect_latlong" => "addresses#redirect_latlong"
 
-  
-
-
-
   match "browse" => "statistics#browse"
   match "stats/browse" => "statistics#browse"
-  match "stats/stats" => "statistics#stats"
 
-  match "stats" => "statistics#graphs"
-
+  match "health/cases/incomplete" => "health#cases_incomplete"
+  match "health/cases/orphans" => "health#cases_orphan"
+  match "health/cases/missing" => "health#cases_missing"
 
   resources :accounts, :except => [:destroy, :create, :edit] do
     collection do
       get :map
+      post :notify
     end
   end
   

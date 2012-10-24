@@ -1,9 +1,17 @@
 class Maintenance < ActiveRecord::Base
   #this is for abatement programs like INAP
+  after_save :update_address_status
+
   belongs_to :address
 
   def date
-    self.date_completed || DateTime.new(0)
+    self.date_completed || self.date_recorded || DateTime.new(0)
+  end
+
+  def update_address_status
+    if self.address
+      self.address.update_most_recent_status(self)
+    end
   end
 
   def self.import_from_workbook(workbook, sheet)
@@ -14,7 +22,6 @@ class Maintenance < ActiveRecord::Base
         Maintenance.create(:house_num => row[0].value, :street_name => row[1].value, :street_type => AddressHelpers.get_street_type(row[2].value), :address_long => AddressHelpers.abbreviate_street_types(row[3].value), :date_recorded => r_date, :date_completed => c_date, :program_name => row[10].value, :status => row[9].value)
       rescue
         p "Maintenance could not be saved: #{$!}"
-        p row
       end
     end
   end

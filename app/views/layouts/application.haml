@@ -4,11 +4,12 @@
   /[if IE 7] <html class="no-js lt-ie9 lt-ie8" lang="en">
   /[if IE 8] <html class="no-js lt-ie9" lang="en">
   %head
-    %title blightSTATUS
+    %title BlightStatus
     = stylesheet_link_tag    "application", :media => "all"
     = csrf_meta_tags
     %meta{:charset => "utf-8"}
     %meta{:content => "", :name => "description"}
+    =favicon_link_tag 'favicon.png'
     / Mobile viewport optimized: h5bp.com/viewport
     %meta{:content => "width=device-width", :name => "viewport"}
     /[if lt IE 9]
@@ -19,4 +20,5 @@
       =render :partial => "layouts/header"
       = yield
     =render :partial => "layouts/footer"
+    =render :partial => "home/legal-disclaimer"
     =render :partial => "layouts/scripts"

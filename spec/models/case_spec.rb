@@ -8,7 +8,7 @@ describe Case do
   it { should have_many(:hearings) }
   it { should have_many(:inspections) }
   it { should have_many(:demolitions) }
-  it { should have_one(:judgement) }
+  it { should have_many(:judgements) }
   it { should have_one(:case_manager) }
   it { should have_one(:foreclosure) }
   it { should have_many(:resets) }
@@ -17,13 +17,11 @@ describe Case do
 
   describe "#accela_steps" do
     it "returns all workflow steps associated with a case" do
-      @inspection = FactoryGirl.create(:inspection, :case => @case, :inspection_date => Time.now - 1.week)
-      @hearing = FactoryGirl.create(:hearing, :case => @case, :hearing_date => Time.now - 1.day)
+      @case.hearings << FactoryGirl.create(:hearing, :case => @case)
+      @case.inspections << FactoryGirl.create(:inspection, :case => @case)
 
       steps = @case.accela_steps
-      steps.should include(@inspection)
-      steps.should include(@hearing)
-      steps.length.should eq(2)
+      steps.should include(Inspection.last, Hearing.last)
     end
 
     it "returns an empty array if a case has no workflow steps" do
@@ -71,8 +69,10 @@ describe Case do
   describe "#most_recent_status" do
     it "returns the most recent workflow step for a case" do
       @inspection = FactoryGirl.create(:inspection, :case => @case, :inspection_date => Time.now - 1.week)
+      p @inspection.date
       @hearing = FactoryGirl.create(:hearing, :case => @case, :hearing_date => Time.now - 1.day)
-      
+      p @hearing.date
+
       @case.most_recent_status.should eq(@hearing)
     end
   end
@@ -173,9 +173,9 @@ describe Case do
       result.count.should == 2
     end
   end
+
   describe "#without_inspection" do
     it "returns # of cases without an inspection, should be 1" do
-
       case2 = FactoryGirl.create(:case)
       FactoryGirl.create(:hearing, :case => case2, :hearing_date => Time.now - 1.day)
       FactoryGirl.create(:inspection, :case => case2)
@@ -184,6 +184,7 @@ describe Case do
       result.count.should == 1
     end
   end
+
   describe "#matched_count" do
     it "returns # of cases matched" do
       @case.address = FactoryGirl.create(:address)
@@ -194,6 +195,7 @@ describe Case do
       result.should == 1
     end
   end
+
   describe "#unmatched_count" do
     it "returns # of cases unmatched" do
       @case.address = FactoryGirl.create(:address)
@@ -205,6 +207,7 @@ describe Case do
       result.should == 2
     end
   end
+
   describe "#pct_matched" do
     it "returns pct of matched cases" do
 
@@ -217,5 +220,8 @@ describe Case do
       result = Case.pct_matched
       result.should == 75.0
     end
+  end
+
+  describe "#update_address_status" do
   end
 end

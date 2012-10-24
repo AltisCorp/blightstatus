@@ -1,66 +1,69 @@
-.container.about-page-content
-  
+.container.about-page-content.accounts-page  
   .span12
-    .span8
-      -if @account_subcriptions.count > 0
-        .subscription.notice
-          %h3
-            My Watchlist
-      -else
-        .subscription.no-subscription.notice
-          %p
-            Stay current and don't miss a hearing again.
-          %br
-
-          %p
-            To receive alerts, search for an address and click "Recieve Alerts". You will get email notifications as the status of the property updates.
+    .span8{:style => "margin-left: 0"}
+      .notice
+        %h1
+          My Watchlist
     .span4
-
-  .left-bar.span8
+  .row.span8
     .block
-      .row#subscriptions
-        -if @account_subcriptions.count > 0
+      #subscriptions
+        #subscriptions-information
+          %p
+            Add properties to your Watchlist to keep track of their progress, all in one place. 
+          %p
+            Receive email alerts the moment any of the properties you are watching move forward in the blight process. 
+        #no-subscriptions-found.case
+          %p
+            To watch a property, search for an address and you'll see a button at the top of the page that looks like this:
+          %p
+            =image_tag 'watchlist-sample.png'
+          %p
+            Click it, and that property will be instantly added to your Watchlist.
 
-          -@account_subcriptions.each do |address|
-            .subscription
-              =link_to address_path(address) do
-                %h3.address
-                  =address.address_long
+        -@account_subcriptions.each do |address|
+          .subscription{:id => "subscription-#{address.id}" }
+
+            %h2.address-title
+              =link_to address do
+                =address.address_long
 
 
 
-
-
+            -address.cases_sorted_by_state.each do |c|
               .progress-bar
-                =render :partial => "addresses/progress-bar", :locals => {:kases => address.sorted_cases}
-      
-              / .cases
-              /   -@n.sorted_cases.each do |c|
-              /     .case
-              /       =render :partial => "addresses/property-history", :locals => {:kase => c}
+                %h3
+                  Case:
+                  =c.case_number
+                  %div.pull-right{:style => "margin: 10px 0 10px 10px"}
+                    -if c.state == 'Open'
+                      .label.label-success
+                        Case: 
+                        =c.state
+                    -else
+                      .label.label-important
+                        Case: 
+                        =c.state
 
+                =render :partial => "addresses/progress-bar", :locals => {:kase => c}
 
-              / .clearfix
-              / .status{:style => "padding: 10px"}
-              /   -if address.most_recent_status_preview.count == 2
-              /     -address.most_recent_status_preview.each do |index, val|
-              /       %h3
-              /         =val
-              .clearfix
+            =render :partial => "addresses/additional-address-information", :locals => {:address => address}
 
-              .subscribe
-                =link_to('Remove Watchlist', "/subscriptions/#{address.id}", :remote => true, :method => :delete, 'data-type' => 'json', :class => 'btn btn-primary btn-large subscribe-button' , :id => "subscribe-button")
-              .view-property
-                =link_to address do
-                  .btn.btn-primary.btn-large
-                    View Property
             .clearfix
+            %br
+            .view-property
+              =link_to address do
+                .btn.btn-primary.btn-tight
+                  View Property
+            .subscribe
+              =link_to('Remove', "/subscriptions/#{address.id}", :remote => true, :method => :delete, 'data-type' => 'json', :class => 'btn btn-primary btn-tight subscribe-button' , :id => "subscribe-button")
 
-  .left-bar.span3
+          .clearfix
+  .row.span3
     .map#map{:style => "width: 300px; height: 200px"}
-      / .map-address{"internal_address_id" => address.id, "address_id" => address.address_id, "map-id" => "map-#{address.id}" , "data-x" => address.point.x, "data-y" => address.point.y }
-      / .leaflet-map{:id => "map-#{address.id}"}
+    .email-notification
+      =form_for :account do |f|
+        =f.check_box :send_notifications
+        =f.label :send_notifications, "Receive Email Updates"
 
-
-          
 

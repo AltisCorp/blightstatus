@@ -1,32 +1,102 @@
-.container
-  %section.row-fluid
-    .span8.main
-      .address-title
-        %h1=@address.address_long
-      .subscribe.centered
-        -if(account_signed_in?)
-          -if(@account_subscribed)
-            =link_to('Remove Watchlist', "/subscriptions/#{@address.id}", :remote => true, :method => :delete, 'data-type' => 'json', :class => 'btn btn-primary btn-large subscribe-button' , :id => "subscribe-button")
-          -else
-            =link_to('Add Watchlist', "/subscriptions/#{@address.id}", :remote => true, :method => :put,  'data-type' => 'json', :class => 'btn btn-primary btn-large subscribe-button' , :id => "subscribe-button")
-        -else
-          =link_to('Add Alerts', new_account_session_path, :class => 'btn btn-primary btn-large subscribe-button' , :id => "subscribe-button")
+.container.property-page
 
-      =render :partial => "addresses/status-update", :locals => {:address => @address}
-      -unless @address.workflow_steps.empty?
-        .property-history
-          =render :partial => "addresses/progress-bar", :locals => {:kases => @address.sorted_cases}
-          .cases
-            -@address.sorted_cases.each do |c|
-              .case
-                =render :partial => "addresses/property-history", :locals => {:kase => c}
-              .clearfix
+  .row
+    .container
+      .span12
+        .address-title{:class => "pull-left"}
+          %h1=@address.address_long
+        .subscribe{:class => "pull-left", :style => "margin-left: 20px;padding: 5px"}
+          -if(account_signed_in?)
+            -if(@account_subscribed)
+              =link_to('Watching', "/subscriptions/#{@address.id}", :remote => true, :method => :delete, 'data-type' => 'json', :class => 'btn btn-primary btn-tight subscribe-button tooltip-hover' , :id => "subscribe-button", "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-title"=>"Stop Receiving notifications when the status of this property changes")
+            -else
+              =link_to("/subscriptions/#{@address.id}", :remote => true, :method => :put,  'data-type' => 'json', :class => 'btn btn-primary btn-tight subscribe-button tooltip-hover'  , :id => "subscribe-button", "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-title"=>"Receive notifications when the status of this property changes") do
+                <img class="add-icon" src="/assets/+icon.png"> Watchlist
+
+          -else
+            =link_to('#register-login-prompt', :class => 'btn btn-primary btn-tight subscribe-button tooltip-hover' , :id => "subscribe-button", "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-toggle"=>"modal", "data-title"=>"Receive notifications when the status of this property changes") do
+              <img class="add-icon" src="/assets/+icon.png"> Watchlist
+
+
+            .modal.hide.fade#register-login-prompt
+              %button.close{"aria-hidden" => "true", "data-dismiss" => "modal", :type => "button"} ×
+              .modal-body
+                .login-information{:style => "margin: 0 auto;"}
+                  %h2
+                    You need an account to watch properties and receive email alerts when their status changes.
+                %hr.soften
+                %br
+                .register-or-login{:style => "margin: 0 auto; text-align: center"}
+                  %h3
+                    %a.btn.btn-primary.btn-large{:href => "/accounts/sign_up"} Sign up
+                    OR 
+                    %a.btn.btn-primary.btn-large{:href => "/accounts/sign_in"} Log in
+                / %h2
+                /   Not sure yet? 
+                /   =link_to Take a Tour >
+
+      .clearfix
+
+  %section.row-fluid
+
+    / Left bar
+    .span8.main
+
+      / -unless @address.workflow_steps.empty?
+      .property-history
+        .block
+          -if @address.cases.empty?
+            .case
+              .no-record-notice
+                This property does not have a blight case record.
+              .status-update
+                %p
+                  To report a code violation, call 
+                  %b
+                    311
+          -else
+            -@address.cases_sorted_by_state.each do |c|
+              .case{:class => "case-status-#{c.state}".downcase}
+                %h2
+                  Case:
+                  =c.case_number
+                  %div.pull-right{:style => "margin: 10px 0 10px 10px"}
+                    -if c.state == 'Open'
+                      .label.label-success
+                        Case: 
+                        =c.state
+                    -else
+                      .label.label-important
+                        Case: 
+                        =c.state
+
+                =render :partial => "addresses/progress-bar", :locals => {:kase => c}
+
+
+
+
+
+                .case-details
+                  =render :partial => "addresses/property-history", :locals => {:kase => c}
+                .clearfix
+                %br
+                %br                
+            %a#show-history{:style => "text-align: center"}
+              Show Historical Cases
+
+          =render :partial => "addresses/additional-address-information", :locals => {:address => @address}
+
+
+
+    / Right bar
     .span4.sidebar
+
+
+
       .map.centered
         .map-address{"internal_address_id" => @address.id, "address_id" => @address.address_id, "map-id" => "map-#{@address.id}" , "data-x" => @address.point.x, "data-y" => @address.point.y }
           .leaflet-map{:style => "border: 1px solid #aaa; height: 150px;", :id => "map-#{@address.id}"}
-      .map.centered      
-        %img{:style => "width: 300px;border: 1px solid #aaa;", :src => "http://maps.googleapis.com/maps/api/streetview?location=#{@address.point.y},#{@address.point.x}&size=300x150&sensor=true"}
+
 
       .assessor.centered
         -if @address.assessor_url
@@ -34,11 +104,18 @@
             =link_to "parcel, tax, and ownership details", @address.assessor_url
           %p
             via the Orleans Parish Assessor’s website
+        -else
+          .parcel-link
+            =link_to "Search for more information", 'http://www.qpublic.net/la/orleans/search1.html'
+          %p
+            via the Orleans Parish Assessor’s website
 
+
+ 
 
       .faq.centered.question-list
         %h3
-          FAQ
+          Common Questions
         -case @address.most_recent_status.class.to_s
           - when 'Inspection'
             =render "pages/help/questions/inspections"
@@ -47,11 +124,26 @@
           - when 'Judgement'
             =render "pages/help/questions/judgements"
           - when 'Resolution'
-            =render "pages/help/questions/abatement"
+            =render "pages/help/questions/resolution"
           - when 'Reset'
             =render "pages/help/questions/reset"
           - else 
             =render "pages/help/questions/general"
 
         .view-all-faq
-          =link_to "View All FAQ >", "/pages/help"
+          =link_to "View All Questions >", "/pages/help"
+
+
+
+      .faq.centered.question-list
+        %h3
+          Data Sources
+        .questions{:style => "padding-left: 20px; padding-right: 5px"}
+          / #data-quality-1.answer.collapse
+          %p
+            Data in BlightStatus comes from:
+          %ul
+            %li City of New Orleans Permits & Licensing system
+            %li City of New Orleans & Road Home Program <a href="https://data.nola.gov/Administrative-Data/BlightStat-Demolitions/abvi-rghr">demolition data</a>
+            %li <a href="http://civilsheriff.com/">Orleans Parish Sheriff</a>’s foreclosure data
+

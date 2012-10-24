@@ -1,59 +1,43 @@
 
--unless @addresses.empty?
-  %section.search-results.container.container-fluid
+-unless @results_empty
+  %section.search-results{:style => "height: 600px"}
     .row-fluid
-      .span3.left-bar      
-        .well{:style => "padding: 8px 0;"}
+      .left-bar{:style => "top: 75px; height: 550px; position: absolute; width: 270px; left: 0; z-index: 1000"}
+        .well{:style => "padding: 20px;"}
           .nav-header 
             %h2
-              Search Results
+              Search Cases
             %p
               (only showing properties with a case history)
           %ul.nav.list
-            / #loading=image_tag('ajax-loader.gif')
-            -#-@addresses.each do |a|
-              %li.active.address.result
-                %a{:href => "#"}
-                  %img{ :width => "10px", :src => "/assets/marker.png"  }
-                  %i.home
-                  =link_to a.address_long, address_path(a.id)
-
-                %a{:href => address_path(a)}
-                  .maps-marker
-                  =a.address_long
           .clearfix
-      .span9.right-bar
+      .right-bar{:style => "left: 270px;width: 75%; position: absolute"}
         .toggle
-          =check_box_tag('map-search-mode', 'true', true)
-          Redo search when map is moved
-
-        #map{:style => "height: 400px;"}
-        / .toggle
-        /   =check_box_tag('map-search-mode')
-        /   Redo search when map is moved
+          .btn-group
+            %input#map-search-mode{:name => "map-search-mode" , :type => "checkbox", :value => "true", :class => "filter-checkbox"}/
+            %label{:for => "map-search-mode"} Reload map when map is moved 
+        #map
       .row
       .btn-toolbar
         .btn-group
-          / =paginate @addresses
 
 -else
   %section.no-search-results
     .row-fluid
       .span2
       .span7.main
-        .address-title
-          %h1 No Results
         .status-update
+          %h1 Address Not Found
           .no-status
             .no-record-notice
               The address "#{@search_term}" was not found
             .recommended-next-action
 
-              %p{:style => "margin-top: 20px"} This could mean a few different things:
-
+              %p{:style => "margin-top: 20px"} 
+                Check to see if you typed the address correctly. 
               %ul
-                %li 
-                  Check to see if you typed the address correctly. 
-                %li 
-                  If you believe you've run into a technical glitch, please report it to 
-                  =mail_to "blightstatus@codeforamerica.org", "blightstatus@codeforamerica.org"
+                %li
+                  If you are unsure of the official spelling, SLOWLY type the first few letters into the search box.
+                %li
+                  A drop-down list will appear with auto-complete suggestions. 
+

@@ -1,0 +1,20 @@
+%html
+  %head
+  %body
+    %table
+      %tr
+        %td
+          %img{:src => "http://blightstatus.nola.gov/images/logo-stronger.png"}
+      %tr
+        %td
+          %h2{:style => "color: #F1601D;"} Here's your daily digest for your subscribed blightstatus properties.
+          %h3 The following properties have been updated:
+      %tr
+        %td
+          %table
+            -@subs.each do |sub|
+              %tr
+                %td
+                  %a{:href => "http://blightstatus.nola.gov/addresses/#{sub.address.id}" }
+                    %h3 #{sub.address.address_long}
+

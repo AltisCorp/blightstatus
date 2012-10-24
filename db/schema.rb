@@ -11,11 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120912004817) do
+ActiveRecord::Schema.define(:version => 20121017012147) do
 
   create_table "accounts", :force => true do |t|
-    t.string   "email",                  :default => "", :null => false
-    t.string   "encrypted_password",     :default => "", :null => false
+    t.string   "email",                  :default => "",   :null => false
+    t.string   "encrypted_password",     :default => "",   :null => false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
@@ -24,8 +24,9 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
+    t.datetime "created_at",                               :null => false
+    t.datetime "updated_at",                               :null => false
+    t.boolean  "send_notifications",     :default => true
   end
 
   add_index "accounts", ["email"], :name => "index_accounts_on_email", :unique => true
@@ -43,18 +44,39 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.float    "x"
     t.float    "y"
     t.string   "status"
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
-    t.spatial  "point",            :limit => {:srid=>0, :type=>"geometry"}
+    t.datetime "created_at",                                                 :null => false
+    t.datetime "updated_at",                                                 :null => false
     t.string   "parcel_id"
     t.boolean  "official"
     t.string   "street_full_name"
     t.string   "assessor_url"
     t.integer  "neighborhood_id"
+    t.spatial  "point",            :limit => {:srid=>-1, :type=>"geometry"}
+    t.string   "latest_type"
+    t.integer  "latest_id"
+    t.integer  "double_id"
   end
 
   add_index "addresses", ["address_long"], :name => "index_addresses_on_address_long"
   add_index "addresses", ["house_num", "street_name"], :name => "index_addresses_on_house_num_and_street_name"
+
+  create_table "admins", :force => true do |t|
+    t.string   "email",                  :default => "", :null => false
+    t.string   "encrypted_password",     :default => "", :null => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          :default => 0
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
+  end
+
+  add_index "admins", ["email"], :name => "index_admins_on_email", :unique => true
+  add_index "admins", ["reset_password_token"], :name => "index_admins_on_reset_password_token", :unique => true
 
   create_table "case_managers", :force => true do |t|
     t.datetime "created_at",  :null => false
@@ -69,12 +91,15 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
     t.integer  "address_id"
+    t.string   "state"
+    t.integer  "status_id"
+    t.string   "status_type"
+    t.string   "outcome"
   end
 
   add_index "cases", ["address_id"], :name => "index_cases_on_address_id"
   add_index "cases", ["case_number"], :name => "index_cases_on_case_number"
 
-<<<<<<< HEAD
   create_table "complaints", :force => true do |t|
     t.string   "status"
     t.datetime "date_received"
@@ -82,10 +107,9 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.string   "notes"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+    t.integer  "spawn_id"
   end
 
-=======
->>>>>>> 858f0965398c8df1eba2e55edf9017279ba7db96
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
@@ -117,6 +141,7 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "date_completed"
     t.integer  "address_match_confidence"
     t.boolean  "case_confidence"
+    t.string   "demo_number"
   end
 
   add_index "demolitions", ["address_id"], :name => "index_demolitions_on_address_id"
@@ -163,6 +188,8 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "created_at",         :null => false
     t.datetime "updated_at",         :null => false
     t.string   "hearing_type"
+    t.boolean  "is_complete"
+    t.integer  "spawn_id"
   end
 
   add_index "hearings", ["case_number"], :name => "index_hearings_on_case_number"
@@ -185,6 +212,7 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
     t.text     "notes"
+    t.integer  "spawn_id"
   end
 
   add_index "inspections", ["case_number"], :name => "index_inspections_on_case_number"
@@ -202,6 +230,7 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.string   "status"
     t.string   "notes"
     t.datetime "judgement_date"
+    t.integer  "spawn_id"
   end
 
   add_index "judgements", ["case_number"], :name => "index_judgements_on_case_number"
@@ -232,9 +261,9 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.float    "x_max"
     t.float    "y_max"
     t.float    "area"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-    t.text     "the_geom"
+    t.datetime "created_at",                                           :null => false
+    t.datetime "updated_at",                                           :null => false
+    t.spatial  "the_geom",   :limit => {:srid=>-1, :type=>"geometry"}
   end
 
   create_table "notifications", :force => true do |t|
@@ -243,6 +272,7 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.string   "case_number"
     t.date     "notified"
     t.string   "notification_type"
+    t.integer  "spawn_id"
   end
 
   create_table "parcels", :force => true do |t|
@@ -264,6 +294,7 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.datetime "updated_at",  :null => false
     t.datetime "reset_date"
     t.string   "notes"
+    t.integer  "spawn_id"
   end
 
   add_index "resets", ["case_number"], :name => "index_resets_on_case_number"
@@ -284,21 +315,21 @@ ActiveRecord::Schema.define(:version => 20120912004817) do
     t.string   "full_name"
     t.integer  "length_numberic"
     t.integer  "shape_len"
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
-    t.spatial  "the_geom",         :limit => {:srid=>0, :type=>"geometry"}
+    t.datetime "created_at",                                                 :null => false
+    t.datetime "updated_at",                                                 :null => false
     t.string   "prefix_direction"
     t.string   "suffix_direction"
+    t.spatial  "the_geom",         :limit => {:srid=>-1, :type=>"geometry"}
   end
 
   create_table "subscriptions", :force => true do |t|
     t.integer  "address_id"
     t.integer  "account_id"
     t.string   "notes"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
-    t.text     "thegeom"
+    t.datetime "created_at",                                              :null => false
+    t.datetime "updated_at",                                              :null => false
     t.datetime "date_notified"
+    t.spatial  "thegeom",       :limit => {:srid=>-1, :type=>"geometry"}
   end
 
 end

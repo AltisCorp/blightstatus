@@ -83,10 +83,16 @@ OpenBlight.addresses = {
         touchZoom: false,
         scrollWheelZoom: false,
         boxZoom: false,
-        minZoom: 13
+        minZoom: 13,
+        crs: L.CRS.EPSG102100
       });
 
       OpenBlight.addresses.map.addLayer(new wax.leaf.connector(tilejson))
+      OpenBlight.addresses.map.addLayer(new L.TileLayer.WMS("http://ec2-50-17-213-29.compute-1.amazonaws.com:6080/arcgis/rest/services/BlightStatus/MapServer", {
+        layers: '0,1',
+        format: 'image/png',
+        transparent: true
+      }));
       OpenBlight.addresses.map.setView(new L.LatLng(y , x));
 
       OpenBlight.addresses.map.on('dragend', function(e){

@@ -6,6 +6,10 @@ OpenBlight = {
       OpenBlight.common.handle_auto_complete_address();
       OpenBlight.common.dropdownLoginForm();
 
+      L.CRS.EPSG102100 = L.Util.extend({}, L.CRS.EPSG3857, {
+        code: 'EPSG:102100'
+      });
+
       if(!Array.prototype.last) {
         Array.prototype.last = function() {
             return this[this.length - 1];

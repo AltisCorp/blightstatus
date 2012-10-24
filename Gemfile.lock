@@ -141,6 +141,10 @@ GEM
     kaminari (0.14.1)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
+    launchy (2.1.2)
+      addressable (~> 2.3)
+    letter_opener (1.0.0)
+      launchy (>= 2.0.4)
     libwebsocket (0.1.5)
       addressable
     log4r (1.1.10)
@@ -308,6 +312,7 @@ DEPENDENCIES
   jquery-rails
   kaminari
   lama!
+  letter_opener
   newrelic_rpm
   pg
   rails (= 3.2.2)

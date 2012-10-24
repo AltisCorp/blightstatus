@@ -68,6 +68,7 @@ end
 
 group :development do
   gem 'awesome_print'
+  gem 'letter_opener'
 end
 
 group :test do

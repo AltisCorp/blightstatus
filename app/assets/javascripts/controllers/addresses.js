@@ -88,7 +88,7 @@ OpenBlight.addresses = {
       });
 
       OpenBlight.addresses.map.addLayer(new wax.leaf.connector(tilejson))
-      OpenBlight.addresses.map.addLayer(new L.TileLayer.WMS("http://ec2-50-17-213-29.compute-1.amazonaws.com:6080/arcgis/rest/services/BlightStatus/MapServer", {
+      OpenBlight.addresses.map.addLayer(new L.TileLayer.WMS("http://50.17.213.29:6080/arcgis/services/BlightStatus2/MapServer/WMSServer", {
         layers: '0,1',
         format: 'image/png',
         transparent: true

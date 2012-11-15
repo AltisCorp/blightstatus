@@ -1,7 +1,7 @@
 development: &DEVELOPMENT
   adapter:  postgis
   encoding: unicode
-  database: openblight_dev
+  database: openblight_be
   username: postgres
   template: template_postgis
   pool: 5

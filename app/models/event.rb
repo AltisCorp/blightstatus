@@ -1,6 +1,7 @@
 class Event < ActiveRecord::Base
   #serialize :details, ActiveRecord::Coders::Hstore
   serialize :details, JSON
+  attr_protected :details
   belongs_to :case, :foreign_key => :case_number, :primary_key => :case_number
   validates_uniqueness_of :date, :scope => [:case_number, :name]
 
@@ -10,14 +11,13 @@ class Event < ActiveRecord::Base
   def init_dhash
   	d_str = self.details
   	if d_str
-    	@dhash = JSON.parse(d_str) #JSON.parse(read_attribute(:details)) # if column_name is the name of the column
+    	@dhash = JSON.parse(d_str)
 	else
 		@dhash = {}
 	end
   end
 
   def save_details
-    #write_attribute(:details, @dhash.to_json)  # or you can modify value, and call super with it. Search on Internet to find more.
     self.details = @dhash.to_json
   end
 end

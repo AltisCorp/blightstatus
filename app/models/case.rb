@@ -1,24 +1,32 @@
 class Case < ActiveRecord::Base
-  after_save :update_address_status
+  serialize :details, JSON
+  
+  attr_protected :details
+  attr_accessor  :dhash
+
+  before_save :set_details
+  #after_save :update_address_status
+  after_initialize :init_dhash
 
   belongs_to :address
   has_many :events, :foreign_key => :case_number, :primary_key => :case_number
-  # has_many :hearings, :foreign_key => :case_number, :primary_key => :case_number
-  # has_many :inspections, :foreign_key => :case_number, :primary_key => :case_number
-  # has_many :notifications, :foreign_key => :case_number, :primary_key => :case_number
-
-  # has_many :demolitions, :foreign_key => :case_number, :primary_key => :case_number
-  # has_many :maintenances, :foreign_key => :case_number, :primary_key => :case_number 
-
-  # has_many :judgements, :foreign_key => :case_number, :primary_key => :case_number
-  # has_one  :case_manager, :foreign_key => :case_number, :primary_key => :case_number
-  # has_one  :foreclosure, :foreign_key => :case_number, :primary_key => :case_number
-  # has_many :resets, :foreign_key => :case_number, :primary_key => :case_number
-  # has_one  :complaint, :foreign_key => :case_number, :primary_key => :case_number
 
   validates_presence_of :case_number
   validates_uniqueness_of :case_number
+  
+  
+  def init_dhash
+    d_str = self.details
+    if d_str
+      @dhash = JSON.parse(d_str)
+  else
+    @dhash = {}
+  end
+  end
 
+  def set_details
+    self.details = @dhash.to_json
+  end
   # def first_inspection
   #   self.inspections.sort{ |a, b| a.date <=> b.date }.first
   # end

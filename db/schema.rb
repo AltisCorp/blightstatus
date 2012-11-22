@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121122011427) do
+ActiveRecord::Schema.define(:version => 20121122155234) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                  :default => "",   :null => false
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(:version => 20121122011427) do
     t.integer  "status_id"
     t.string   "status_type"
     t.string   "outcome"
+    t.text     "details"
   end
 
   add_index "cases", ["address_id"], :name => "index_cases_on_address_id"

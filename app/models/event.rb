@@ -6,7 +6,7 @@ class Event < ActiveRecord::Base
   validates_uniqueness_of :date, :scope => [:case_number, :name]
 
   after_initialize :init_dhash
-  before_save :save_details
+  before_save :set_details
   attr_accessor	 :dhash
   def init_dhash
   	d_str = self.details
@@ -17,7 +17,7 @@ class Event < ActiveRecord::Base
 	end
   end
 
-  def save_details
+  def set_details
     self.details = @dhash.to_json
   end
 end

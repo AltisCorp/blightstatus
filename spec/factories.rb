@@ -47,6 +47,9 @@ FactoryGirl.define do
     status            {"guilty"}
   end
 
+  factory :complaint do
+  end
+
   factory :maintenance do
   end
 
@@ -56,6 +59,7 @@ FactoryGirl.define do
 
   factory :notification do
     #are there any fields to require?
+    notified   { DateTime.new(rand(1000)) }
   end
 
   factory :reset do

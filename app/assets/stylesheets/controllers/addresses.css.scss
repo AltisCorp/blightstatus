@@ -69,6 +69,12 @@
   }
   
 
+  #list-of-violations{
+    display: none;
+    margin-top: 10px;
+  }
+
+  
 
   .main{
     background-color: white;
@@ -170,7 +176,7 @@
         font-size: 150%;
         font-weight: 300;
         text-align: left;  
-        margin: 0 15px;
+//        margin: 0 15px;
         color: inherit;      
       }
     }
@@ -408,12 +414,13 @@
 .progress-bar-wrapper {
   margin-top: 5px;
   min-height: 10px;
+  width: 100%;
 
   .table{
 
 
     width:inherit;
-    margin: 0 20px;
+//    margin: 0 20px;
 
 
     tr{
@@ -494,13 +501,13 @@
     }
 
     &.pending {
-      background: url("/assets/single-progress-arrows-2.png") no-repeat -1px -1px transparent;
+      background: url("/assets/single-progress-arrows-2.png") no-repeat -1px -79px transparent;
     }
 
     &.error {
 //      background: url('/assets/progress-arrows.png') no-repeat 0 0;
 //      background: url('/assets/progress-arrows.png') no-repeat 0 -25px transparent;
-      background: url("/assets/single-progress-arrows-2.png") no-repeat scroll 0 -102px transparent !important;
+      background: url("/assets/single-progress-arrows-2.png") no-repeat scroll 0 -1px transparent !important;
     }
 
 

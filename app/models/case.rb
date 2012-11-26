@@ -8,12 +8,12 @@ class Case < ActiveRecord::Base
   #after_save :update_address_status
   after_initialize :init_dhash
 
+
   belongs_to :address
   has_many :events, :foreign_key => :case_number, :primary_key => :case_number
 
   validates_presence_of :case_number
   validates_uniqueness_of :case_number
-  
   
   def init_dhash
     d_str = self.details
@@ -301,4 +301,5 @@ class Case < ActiveRecord::Base
   # def judgement
   #   self.judgements.last
   # end
+
 end

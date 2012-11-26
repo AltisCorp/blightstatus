@@ -13,10 +13,13 @@ class Address < ActiveRecord::Base
 
   has_many :subscriptions
   has_many :accounts, :through => :subscriptions
+
   has_many :inspections, :through => :cases
   has_many :notifications, :through => :cases
   has_many :hearings, :through => :cases
   has_many :judgements, :through => :cases
+
+  has_one :double_address, :class_name => "Address", :foreign_key => :double_id
 
   accepts_nested_attributes_for :subscriptions, :allow_destroy => true
 
@@ -36,10 +39,16 @@ class Address < ActiveRecord::Base
       begin
         latest_step = Kernel.const_get(latest_type).find(latest_id)
       rescue ActiveRecord::RecordNotFound
-        self.update_attributes(:latest_id => nil, :latest_type => nil)
+        #if !self.workflow_steps.empty?
+        latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
+        if latest_step
+          self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
+        else
+          self.update_attributes(:latest_id => nil, :latest_type => nil)
+        end
       end
     elsif !self.workflow_steps.empty?
-      latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last
+      latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
       self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
     end
     return latest_step
@@ -88,6 +97,15 @@ class Address < ActiveRecord::Base
     steps_ary.flatten.compact
   end
 
+  def assign_double
+    return unless self.double_address.nil?
+    d = Address.where("x = ? AND y = ?", self.x, self.y).first
+    self.double_address = d
+    d.double_address = self
+    save
+    d.save
+  end
+
   def self.find_addresses_with_cases_by_cardinal_street(card, street_string)
     Address.joins(:cases).where('address_long like ?', '%' + card.single_space + ' ' + street_string.single_space + '%')
   end
@@ -109,7 +127,30 @@ class Address < ActiveRecord::Base
     Address.joins(:cases,:neighborhood).where(:neighborhoods => {:name => neighborhood_name})
   end
 
+  def self.find_doubles
+    Address.all.find_each do |address|
+      address.assign_double
+    end
+  end
+
   def load_cases
     LAMAHelpers.import_by_location(self.address_long)
+  end
+
+  def self.match_abatement(abatement)
+    address = AddressHelpers.find_address(abatement.address_long) if abatement.address_long
+    address = address.first
+    if address
+      abatement.update_attribute(:address_id, address.id)
+      abatement.update_attribute(:case_number, nil) if abatement.case_number && abatement.address_id && abatement.address_id != abatement.case.address_id
+      abatement.address
+      
+      Case.match_abatement(abatement) if abatement.address
+    end    
+  end
+
+  def most_relevant_case
+    status = most_recent_status
+    status ? status.case : nil
   end
 end

@@ -28,6 +28,8 @@ OpenBlight.addresses = {
     OpenBlight.addresses.mapAddresses();
     OpenBlight.accounts.subscriptionButton();
     OpenBlight.addresses.showHistory();
+    OpenBlight.addresses.toggleShowViolations();
+
 
     $('.property-history .case').hide();
 
@@ -81,6 +83,17 @@ OpenBlight.addresses = {
     });
   },
 
+
+  toggleShowViolations: function(){
+
+    $("#see-violations").toggle(function() {
+      $("#see-violations").html(' Hide Violations ');
+      $('#list-of-violations').show();
+    }, function(){
+      $("#see-violations").html(' Show Violations ');
+      $('#list-of-violations').hide();
+    });
+  },
 
   
   createSearchResultsMap: function(){
@@ -148,7 +161,13 @@ OpenBlight.addresses = {
           OpenBlight.addresses.markers.push( layer );
 
           var pos = current_feature+1;
-          li = '<li class="address result '+ ((pos > 9) ? " two-digits": "") + ((pos > 99) ? " three-digits": "") +'" data-id="'+ data[current_feature].id +'"> <span class="maps-marker">'+pos+'</span><span class="search-address"><a href="/addresses/'+ data[current_feature].id +'">'+ data[current_feature].address_long +'</a></span></li>';
+
+          var digit_class = (pos > 9) ? ((pos > 99) ? " three-digits ": " two-digits ") : " ";
+          // var digit_class = '';
+
+            
+
+          li = '<li class="address result '+ digit_class +' " data-id="'+ data[current_feature].id +'"> <span class="'+ digit_class +' maps-marker">'+pos+'</span><span class="search-address"><a href="/addresses/'+ data[current_feature].id +'">'+ data[current_feature].address_long +'</a></span></li>';
           $('.search-results ul.list').append(li);
 
           layer.on('dblclick', function(){ window.location.href = link });
@@ -293,7 +312,7 @@ OpenBlight.addresses = {
   },
 
   getCircleIcon: function(classname){
-    return {
+    return geojsonMarkerOptions = {
         radius: 3,
         fillColor: "#ff7800",
         color: "#000",
@@ -309,5 +328,5 @@ OpenBlight.addresses = {
       markers[i] = OpenBlight.addresses.markers[i].getLatLng();
     }
     OpenBlight.addresses.map.fitBounds(markers);
-  },
+  }
 }

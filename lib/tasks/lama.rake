@@ -32,7 +32,7 @@ namespace :lama do
       return
     end
 
-    LAMAHelpers.import_to_database(incidents, l)
+    LAMAHelpers.import_incidents_to_database(incidents, l)
   end
 
   desc "Import day's LAMA events"
@@ -58,7 +58,7 @@ namespace :lama do
       incidents = l.incidents_by_date(call_end_date, start_date)
       if incidents
         p "There are #{incidents.length} incidents"
-        LAMAHelpers.import_to_database(incidents, l)
+        LAMAHelpers.import_incidents_to_database(incidents, l)
       end
       start_date = call_end_date
     end
@@ -67,22 +67,15 @@ namespace :lama do
   desc "Import updates from LAMA by parameter pipe (|) delimited string of cases"
   task :load_by_case, [:case_numbers] => :environment do |t, args|
     l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
-    incidents = []
+    
     case_numbers = args[:case_numbers].split('|')
 
     case_numbers.each do |case_number|
       case_number = case_number.strip
-      incidents << l.incident(case_number)
+      incident = l.incident(case_number)
+      LAMAHelpers.import_incident_to_database(incident, l) if incident
+      puts "#{case_number}"
     end
-
-    incid_num = incidents.length
-    p "There are #{incid_num} incidents"
-    if incid_num >= 1000
-      p "LAMA can only return 1000 incidents at once- please try a smaller date range"
-      return
-    end
-
-    LAMAHelpers.import_to_database(incidents, l)
   end
 
 
@@ -126,7 +119,6 @@ namespace :lama do
   desc "Import updates from LAMA by parameter pipe (|) delimited string of cases"
   task :load_by_location, [:addresses] => :environment do |t, args|
     l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
-    incidents = []
     addresses = args[:addresses].split('|')
 
     addresses.each do |address|
@@ -135,13 +127,114 @@ namespace :lama do
   end
 
   desc "Import cases for addresses with no cases"
-  task :load_addresses_with_no_cases => :environment do |t, args|
+  task :load_addresses_with_no_cases, [:streets] => :environment do |t, args|
     l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
-    Address.includes([:cases]).where("cases.id IS NULL").find_in_batches do |group| # and addresses.street_name = 'MISTLETOE'")
-      sleep(100)
-      group.each do |address|
+    if args[:streets]
+      streets = args[:streets].split('|')
+    else
+      streets = Address.uniq.pluck(:street_name)
+    end
+    puts "#{streets}"
+    streets.each do |street|
+      addresses = Address.includes([:cases]).where("cases.id IS NULL and addresses.street_name = '#{street}'")
+      addresses.each do |address|
         puts "Load cases for => #{address.address_long}"
         LAMAHelpers.import_by_location(address.address_long,l)
+      end
+    end
+  end
+
+  desc "Import unsaved cases for all addresses"
+  task :load_addresses_with_unsaved_cases, [:streets] => :environment do |t, args|
+    l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    if args[:streets]
+      streets = args[:streets].split('|')
+    else
+      streets = Address.uniq.pluck(:street_name)
+    end
+    puts "#{streets}"
+    streets.each do |street|
+      addresses = Address.select(:address_long).where(:street_name => street)
+      addresses.each do |address|
+        puts "Load cases for => #{address.address_long}"
+        LAMAHelpers.import_unsaved_cases_by_location(address.address_long,l)
+      end
+    end
+  end
+
+  desc "Import unsaved cases for all addresses"
+  task :load_cases_by_street, [:streets] => :environment do |t, args|
+    l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    if args[:streets]
+      streets = args[:streets].split('|')
+    else
+      streets = Address.uniq.pluck(:street_name)
+    end
+    puts "#{streets}"
+    streets.each do |street|
+      addresses = Address.select(:address_long).where(:street_name => street)
+      addresses.each do |address|
+        puts "Load cases for => #{address.address_long}"
+        LAMAHelpers.import_by_location(address.address_long,l)
+      end
+    end
+  end
+
+  desc "reload cases imported without spawn"
+  task :reload_cases_before_date, [:before_date] => :environment do |t, args|
+    if args[:before_date].nil?
+      puts "this task requires a date parameter (ie: YYYY-MM-dd)"
+      return
+    end
+    date = args[:before_date]
+    now = Time.now
+    file = "log/case_spawn_reload_#{now.strftime("%Y%m%d%H%M%S")}.csv"
+    l = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    File.open(file, "w") do |log|
+      puts "file opened => #{file}"
+      Case.where("created_at < '#{date}'").find_each do |kase|
+        if LAMAHelpers.reloadCase(kase.case_number,l).nil?
+          msg = "FAILURE : #{kase.case_number} NOT reimported with spawns !!!!!!" 
+          puts msg
+          log << "#{msg}\r"
+          return
+        end
+      end 
+    end
+  end  
+
+  desc "reload cases imported without spawn"
+  task :reload_cases, [:case_number] => :environment do |t, args|
+    if args[:case_number].nil?
+      puts "this task requires | delimited list of cases"
+      return
+    end
+    case_numbers = args[:case_number]
+    l = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    case_numbers.split('|').each do |case_number|
+      if LAMAHelpers.reloadCase(case_number,l).nil?
+        puts "FAILURE : #{case_number} NOT reimported with spawns !!!!!!" 
+        break
+      end
+    end
+  end
+
+  desc "reload cases imported without spawn"
+  task :reload_pipeline_non_existent_cases_file, [:file] => :environment do |t, args|
+    if args[:file].nil?
+      puts "this task requires an input file"
+      return
+    end
+    file = args[:file]
+    l = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    outfile = "tmp/cache/rake/pipeline_reload_#{DateTime.now.strftime("%Y%m%d%H%M%S")}.csv"
+    File.open(outfile, "w") do |log|
+      IO.readlines(file).each do |line|
+        case_number =  line.strip
+        next if Case.where(:case_number => case_number).exists?
+        puts "loading #{case_number}"
+        log << "#{case_number}|"
+        puts "#{case_number} => processed"
       end
     end
   end

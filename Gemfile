@@ -20,7 +20,6 @@ gem 'savon'
 gem "httpclient", "~> 2.3.0"
 
 gem 'delayed_job_active_record'
-gem 'activerecord-postgres-hstore', :git => 'git://github.com/engageis/activerecord-postgres-hstore.git'
 gem 'json-schema'
 
 # GIS 

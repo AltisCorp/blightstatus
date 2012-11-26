@@ -232,14 +232,15 @@ module LAMAHelpers
       last_hearing = kase.last_hearing
       h_date = DateTime.parse(event.EventDate)
       if kase.judgement.nil? && last_notification && h_date > last_notification.date && (last_hearing.nil? || ((last_hearing && h_date > last_hearing.date) && (last_notification > last_hearing.date)))         
-        Event.create(:name => 'Hearing',:case_number => kase.case_number, :date => event.DateEvent, :status => 'Scheduled', :dhash => {:hearing_type => event.Type, :is_complete => false}      
+        Event.create(:name => 'Hearing',:case_number => kase.case_number, :date => event.DateEvent, :status => 'Scheduled', :dhash => {:hearing_type => event.Type, :is_complete => false})
+      end
     end
   end
   def parseInspection(case_number,inspection)
     if inspection.class == Hashie::Mash && inspection.IsComplete =~ /true/
       insp_date = DateTime.parse(inspection.InspectionDate)
       unless Event.where("name = ? AND case_number = ? and date = ?", 'Inspection', case_number, insp_date).exists?
-        inspection = Event.new(:name => 'Inspection', :case_number => case_number, :date => insp_date, :details => {:comment => inspection.Comment,:findings => {}, :spawn_id = inspection.ID})
+        inspection = Event.new(:name => 'Inspection', :case_number => case_number, :date => insp_date, :details => {:comment => inspection.Comment,:findings => {}, :spawn_id => inspection.ID})
       end
       inspection_spawn = {:spawn_id => inspection.ID, :date => inspection.InspectionDate, :notes => inspection.Comment, :step => Inspection.to_s, :spawn_type => Inspection.to_s, :findings => {}}
       
@@ -341,7 +342,7 @@ module LAMAHelpers
     cases
   end
   
-    def import_unsaved_cases_by_location(address,lama=nil)
+  def import_unsaved_cases_by_location(address,lama=nil)
     begin
       lama = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']}) if lama.nil?
     

@@ -29,7 +29,7 @@ module LAMAHelpers
         kase.update_attribute(:state, 'Closed') if incident.IsClosed =~/true/ && kase.state != 'Closed' 
 
         puts "case => #{case_number}   status => #{incident.CurrentStatus}    date => #{incident.CurrentStatusDate}"
-        orig_outcome = kase.outcome
+        # orig_outcome = kase.outcome
         incident_full = l.incident(case_number)
         
         #Go through all data points and pull out relevant things here
@@ -61,7 +61,7 @@ module LAMAHelpers
             end
           end
         end
-        
+
         #Events
         events = []
         if incident_full.Events && incident_full.Events.IncidEvent
@@ -239,21 +239,19 @@ module LAMAHelpers
   def parseInspection(case_number,inspection)
     if inspection.class == Hashie::Mash && inspection.IsComplete =~ /true/
       insp_date = DateTime.parse(inspection.InspectionDate)
-      unless Event.where("name = ? AND case_number = ? and date = ?", 'Inspection', case_number, insp_date).exists?
-        inspection = Event.new(:name => 'Inspection', :case_number => case_number, :date => insp_date, :details => {:comment => inspection.Comment,:findings => {}, :spawn_id => inspection.ID})
-      end
-      inspection_spawn = {:spawn_id => inspection.ID, :date => inspection.InspectionDate, :notes => inspection.Comment, :step => Inspection.to_s, :spawn_type => Inspection.to_s, :findings => {}}
       
-      if inspection.Findings != nil && inspection.Findings.InspectionFinding != nil
+      findings = {}
+      if inspection.Findings && inspection.Findings.InspectionFinding != nil
         inspection.Findings.InspectionFinding.each do |finding|
           if finding.class == Hashie::Mash
             if finding.Finding && finding.Finding.length > 0
-              inspection.dhash[:findings][finding.ID] = finding.Finding
+              findings[finding.ID] = finding.Label
             end
           end
         end
       end
-      inspection.save if inspection
+      
+      Event.create(:name => 'Inspection', :case_number => case_number, :date => insp_date, :dhash => {:comment => inspection.Comment, :spawn_id => inspection.ID, :findings => findings})
     end
   end
   def parseAction(kase,action)
@@ -381,12 +379,13 @@ module LAMAHelpers
       date = judgement.D_Court if judgement.D_Court
       id = judgement.ID if judgement.ID
       
-      return judgement_spawn if j_status =~ /pending/
+      return if j_status =~ /pending/
+
       j = nil
       
       if j_status =~ /reset/
         Event.create(:name => 'Reset', :case_number => kase.case_number, :date => date, :status => judgement.Status)
-        return {:spawn_id => judgement.ID, :status => j, :date => date, :notes => j_status, :spawn_type => Reset.to_s, :step => Reset.to_s}
+        return
       elsif j_status =~ /dismiss/
         j = 'Dismissed'
       elsif j_status =~ /closed/
@@ -400,9 +399,13 @@ module LAMAHelpers
       elsif j_status =~ /rescinded/
           j = 'Rescinded'
       end
-      return nil if j.nil?
-      j_status = judgement.Status unless judgement.Status.nil?  
-      Event.create(:name => 'Judgment', :case_number => kase.case_number, :status => j, :date => date, :dhash => {:notes => j_status}) if j
+            
+      if j
+        j_status = judgement.Status
+        j =  Event.create(:name => 'Judgment', :case_number => kase.case_number, :status => j, :date => date, :dhash => {:notes => j_status})
+      end
+      
+      
     end
   end
 

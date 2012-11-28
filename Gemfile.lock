@@ -1,4 +1,13 @@
 GIT
+  remote: git://github.com/engageis/activerecord-postgres-hstore.git
+  revision: c27b375ac0b38519e463d03ae269003c9116e264
+  specs:
+    activerecord-postgres-hstore (0.4.1)
+      pg
+      rails
+      rake
+
+GIT
   remote: https://github.com/gangleton/lama.git
   revision: 2fdbc2ab67fed340bb334e21ec81772ee184a806
   specs:
@@ -290,6 +299,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-postgis-adapter
+  activerecord-postgres-hstore!
   awesome_print
   aws-s3
   capybara

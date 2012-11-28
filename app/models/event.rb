@@ -1,23 +1,14 @@
 class Event < ActiveRecord::Base
-  #serialize :details, ActiveRecord::Coders::Hstore
-  serialize :details, JSON
-  attr_protected :details
+  serialize :dstore, ActiveRecord::Coders::Hstore
+  serialize :dhash, Hash
+  
+  attr_protected :dstore
   belongs_to :case, :foreign_key => :case_number, :primary_key => :case_number
   validates_uniqueness_of :date, :scope => [:case_number, :name]
 
-  after_initialize :init_dhash
-  before_save :set_details
-  attr_accessor	 :dhash
-  def init_dhash
-  	d_str = self.details
-  	if d_str
-    	@dhash = JSON.parse(d_str)
-	else
-		@dhash = {}
-	end
-  end
+  before_save :update_dstore
 
-  def set_details
-    self.details = @dhash.to_json
-  end
+  def update_dstore
+    self.dstore = self.dhash
+  end 
 end

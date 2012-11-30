@@ -2,26 +2,26 @@
   %table.table.table-condensed.timeline
     %tbody    
       %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
-        -unless kase.inspections.empty?
+        -if kase.events_by_name(:Inspection)#unless kase.inspections.empty?
           %td 
             %span.arrow            
           %td.status 
             Inspected
           %td
             %table.table-nolines
-              -unless kase.first_inspection.nil?
+              -if kase.events_by_name(:Inspection)#unless kase.first_inspection.nil?
                 %tr
-                  %td.date=kase.first_inspection.inspection_date.strftime("%-m/%-d/%y")
+                  %td.date=kase.events_by_name(:Inspection).first.date.strftime("%-m/%-d/%y")
                   %td 
                     Property was inspected
-                    -unless kase.first_inspection.inspection_findings.first.nil?
-                      and was found with #{kase.first_inspection.inspection_findings.count} violations. 
+                    -if kase.events_by_name(:Inspection).first.dhash[:findings]
+                      and was found with #{kase.events_by_name(:Inspection).first.dhash[:findings].count} violations. 
                       %a{:id=>"see-violations", :href=>"#"}
                         See Violations
                       #list-of-violations
-                        -kase.first_inspection.inspection_findings.each_with_index do |violation, index|
+                        -kase.events_by_name(:Inspection).first.dhash[:findings].each_with_index do |violation, index|
                           %p  
-                            #{index+1}) #{violation.finding.gsub('HCEV', '')}
+                            #{index+1}) #{violation[1].gsub('HCEV', '')}
 
         -else
           %td{:colspan => "3", :style => "text-align: center"} 
@@ -39,62 +39,65 @@
 
 
 
-      -unless kase.notifications.empty?
+      -if kase.events_by_name(:Inspection)
         %tr{:class => "case-history-notification case-history-notification-#{kase.case_number}"}
           %td
             %span.arrow                                    
           %td.status Notice Sent
           %td
             %table.table.table-nolines
-              -kase.notifications.each do |n|
+              -kase.events_by_name(:Inspection).each do |n|
                 %tr
                   %td.date=n.date.strftime("%-m/%-d/%y")
                   %td A notice of hearing was sent to the property owner.
 
 
 
-      -unless kase.ordered_hearings_and_judgements.empty?
-        -kase.ordered_hearings_and_judgements.each do |r|
-          %tr{:class => "case-history-#{r.class} case-history-#{r.class}-#{kase.case_number}"}
+      -if kase.events_by_name(:Hearing)
+        -kase.events_by_name(:Hearing).each do |r|
+          %tr{:class => "case-history-#{r.class} case-history-#{r.name}-#{kase.case_number}"}
             %td
               %span.arrow                                    
             %td.status 
-              -if r.class == Hearing
-                #{r.date < Time.now ? 'Case Heard' : 'Hearing Scheduled'}
-              -else
-                Judgment Recorded
+              #{r.date < Time.now ? 'Case Heard' : 'Hearing Scheduled'}
             %td
-              -if r.class == Hearing
-                %table.table-nolines
-                  %tr
-                    %td.date=r.date.strftime("%-m/%-d/%y")
-                    %td
-                      The case against this property #{r.date > Time.now ? 'will be' : 'was'} heard 
-              -else
-                %table.table-nolines
-                  %tr
-                    %td.date=kase.judgement.judgement_date.strftime("%-m/%-d/%y")
-                    %td
-                      -if kase.judgement.status.nil? || kase.judgement.status =~ /Guilty/
-                        A judgment of <b>#{kase.judgement.status ? kase.judgement.status.capitalize : 'Guilty'}</b> was reached
-                      -elsif kase.judgement.status =~ /Closed/
-                        This case has been <b>Closed</b> #{"(#{kase.judgement.notes})" if kase.judgement.notes}
-                      -elsif kase.judgement.status.downcase =~ /rescinded/
-                        The previous judgment for this case has been <b>rescinded</b>
-                      -else
-                        A judgment of <b>#{kase.judgement.status}</b> was reached
+              %table.table-nolines
+                %tr
+                  %td.date=r.date.strftime("%-m/%-d/%y")
+                  %td
+                    The case against this property #{r.date > Time.now ? 'will be' : 'was'} heard 
+      -if kase.events_by_name(:Judgment)
+        -kase.events_by_name(:Judgment).each do |r|
+          %tr{:class => "case-history-#{r.name} case-history-#{r.name}-#{kase.case_number}"}
+            %td
+              %span.arrow                                    
+            %td.status
+              Judgment Recorded
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=r.date.strftime("%-m/%-d/%y")
+                  %td
+                    -if r.status.nil? || r.status =~ /Guilty/
+                      A judgment of <b>#{r.status ? r.status.capitalize : 'Guilty'}</b> was reached
+                    -elsif r.status =~ /Closed/
+                      This case has been <b>Closed</b> #{"(#{kase.judgement.notes})" if kase.judgement.notes}
+                    -elsif r.status.downcase =~ /rescinded/
+                      The previous judgment for this case has been <b>rescinded</b>
+                    -else
+                      A judgment of <b>#{r.status}</b> was reached
 
 
       / These are resolutions brought through a code enforcement case
-      -if kase.resolutions.any?
+      -if kase.events_by_name(:Resolution)
         %tr{:class => "case-history-resolution case-history-resolution-#{kase.case_number}"}
           %td
             %table.table-nolines
-            -kase.resolutions.each do |r|
+            -kase.events_by_name(:Resolution).each do |r|
               %tr
                 %td
                   %span.arrow
-                -if r.class == Demolition
+                -if r.dhash[:type] == Demolition
                   %td.status 
                     Demolition
                   %td
@@ -114,7 +117,7 @@
                           -else
                             demolished
 
-                - elsif r.class == Foreclosure
+                - elsif r.dhash[:type] == Foreclosure
                   %td.status 
                     / =r.inspect
                     Sheriff Sale 
@@ -132,7 +135,7 @@
                             The status is
                             %b=r.status
 
-                - elsif r.class == Maintenance
+                - elsif r.dhash[:type] == Maintenance
                   %td.status Lot Cleared
                   %td
                     %table.table-nolines
@@ -141,4 +144,4 @@
                         %td This lot was cleared by #{r.program_name}
                 - else
                   %td
-                    %td=r.class.to_s + ": " + r.date.strftime("%-m/%-d/%y")
+                    %td=r.dhash[:type].to_s + ": " + r.date.strftime("%-m/%-d/%y")

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121128183615) do
+ActiveRecord::Schema.define(:version => 20121128215624) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                  :default => "",   :null => false
@@ -94,11 +94,13 @@ ActiveRecord::Schema.define(:version => 20121128183615) do
     t.string   "state"
     t.integer  "status_id"
     t.string   "status_type"
-    t.text     "details"
+    t.text     "dhash"
+    t.hstore   "dstore"
   end
 
   add_index "cases", ["address_id"], :name => "index_cases_on_address_id"
   add_index "cases", ["case_number"], :name => "index_cases_on_case_number"
+  add_index "cases", ["dstore"], :name => "cases_gin_dstore"
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0

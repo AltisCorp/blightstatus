@@ -85,7 +85,7 @@ class Address < ActiveRecord::Base
   end
 
   def cases_sorted_by_state
-    self.cases.sort{|a,b| b.case_steps <=> a.case_steps}
+    self.cases.sort{|a,b| b.ordered_events <=> a.ordered_events}
   end
 
   def workflow_steps

@@ -1,13 +1,11 @@
 class Case < ActiveRecord::Base
-  serialize :details, JSON
+  serialize :dhash, Hash
+  serialize :dstore, ActiveRecord::Coders::Hstore
   
-  attr_protected :details
-  attr_accessor  :dhash
-
-  before_save :set_details
-  #after_save :update_address_status
-  after_initialize :init_dhash
-
+  attr_protected :dstore
+  
+  before_save :update_dstore
+  # after_initialize :filter_events
 
   belongs_to :address
   has_many :events, :foreign_key => :case_number, :primary_key => :case_number
@@ -15,18 +13,56 @@ class Case < ActiveRecord::Base
   validates_presence_of :case_number
   validates_uniqueness_of :case_number
   
-  def init_dhash
-    d_str = self.details
-    if d_str
-      @dhash = JSON.parse(d_str)
-  else
-    @dhash = {}
-  end
+  def set_details
+    self.dstore = @dhash
   end
 
-  def set_details
-    self.details = @dhash.to_json
+  def ordered_events
+    self.events.sort{|a,b| a.date <=> b.date}
   end
+
+  def events_grouped_by_name
+    events_hash = {}
+    ordered_events.each do |event|
+      events_hash[event.name.to_sym] = [] unless events_hash[event.name.to_sym]
+      events_hash[event.name.to_sym] << event
+    end
+    events_hash
+  end
+
+  def events_summary
+    event_array = []
+    # events_by_name.each_value{ |event_name_list| event_array << event_name_list.first }
+    events_by_name.each_value do |event_name_list| 
+      event_array << event_name_list.first
+    end
+    event_array.sort{|a,b| a.date <=> b.date}
+  end
+
+  def events_by_name(name)
+    events_grouped_by_name[name.to_sym]
+  end
+
+  def missing_event?(name)
+    false
+  end
+
+  def data_error?
+
+    # if case_steps == 1 && missing_inspection?
+    #   true
+    # elsif case_steps == 2 && missing_notification?
+    #   true
+    # elsif case_steps == 3 && missing_hearing? 
+    #   true
+    # elsif case_steps == 4 && missing_judgement?
+    #   true
+    # elsif case_steps == 5 && missing_resolution?
+    #   true
+    # end
+    false
+  end
+
   # def first_inspection
   #   self.inspections.sort{ |a, b| a.date <=> b.date }.first
   # end
@@ -180,12 +216,6 @@ class Case < ActiveRecord::Base
   #   c[:demolitions] = self.demolitions
   #   c[:maintenances] = self.maintenances
   #   c
-  # end
-
-  # def case_steps
-  #   case_steps = []
-  #   case_steps << self.inspections.first << self.hearings.first   << self.notifications.first << self.judgement << (self.demolitions || self.foreclosure || self.maintenances )
-  #   case_steps.flatten.compact.count
   # end
 
   # def adjudication_steps

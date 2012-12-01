@@ -21,29 +21,29 @@ class Case < ActiveRecord::Base
     self.events.sort{|a,b| a.date <=> b.date}
   end
 
-  def events_grouped_by_name
+  def events_grouped_by_step
     events_hash = {}
     ordered_events.each do |event|
-      events_hash[event.name.to_sym] = [] unless events_hash[event.name.to_sym]
-      events_hash[event.name.to_sym] << event
+      events_hash[event.step.to_sym] = [] unless events_hash[event.step.to_sym]
+      events_hash[event.step.to_sym] << event
     end
     events_hash
   end
 
-  def events_summary
-    event_array = []
-    # events_by_name.each_value{ |event_name_list| event_array << event_name_list.first }
-    events_by_name.each_value do |event_name_list| 
-      event_array << event_name_list.first
-    end
-    event_array.sort{|a,b| a.date <=> b.date}
+  # def events_summary
+  #   event_array = []
+  #   # events_by_name.each_value{ |event_name_list| event_array << event_name_list.first }
+  #   events_by_step.each_value do |event_name_list| 
+  #     event_array << event_name_list.first
+  #   end
+  #   event_array.sort{|a,b| a.date <=> b.date}
+  # end
+
+  def events_by_step(step)
+    events_grouped_by_step[step.to_sym]
   end
 
-  def events_by_name(name)
-    events_grouped_by_name[name.to_sym]
-  end
-
-  def missing_event?(name)
+  def missing_event?(step)
     false
   end
 
@@ -63,6 +63,9 @@ class Case < ActiveRecord::Base
     false
   end
 
+  def update_dstore
+    self.dstore = self.dhash
+  end
   # def first_inspection
   #   self.inspections.sort{ |a, b| a.date <=> b.date }.first
   # end

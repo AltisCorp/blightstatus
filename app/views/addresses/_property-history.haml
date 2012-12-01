@@ -1,74 +1,71 @@
 .case-history
   %table.table.table-condensed.timeline
-    %tbody    
-      %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
-        -if kase.events_by_name(:Inspection)#unless kase.inspections.empty?
-          %td 
-            %span.arrow            
-          %td.status 
-            Inspected
-          %td
-            %table.table-nolines
-              -if kase.events_by_name(:Inspection)#unless kase.first_inspection.nil?
-                %tr
-                  %td.date=kase.events_by_name(:Inspection).first.date.strftime("%-m/%-d/%y")
-                  %td 
-                    Property was inspected
-                    -if kase.events_by_name(:Inspection).first.dhash[:findings]
-                      and was found with #{kase.events_by_name(:Inspection).first.dhash[:findings].count} violations. 
-                      %a{:id=>"see-violations", :href=>"#"}
-                        See Violations
-                      #list-of-violations
-                        -kase.events_by_name(:Inspection).first.dhash[:findings].each_with_index do |violation, index|
-                          %p  
-                            #{index+1}) #{violation[1].gsub('HCEV', '')}
-
-        -else
-          %td{:colspan => "3", :style => "text-align: center"} 
-            -if kase.state == 'Open'
-              A case for this property was created. Inspection is pending.
-            -else
-              A case for this property was created. No futher actions have occured. 
-              =link_to('#why-data-incomplete', "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-toggle"=>"modal", "data-title"=>"Receive notifications when the status of this property changes") do
-                Why?
-
-
-
-            %br
-            %br
-
-
-
-      -if kase.events_by_name(:Inspection)
-        %tr{:class => "case-history-notification case-history-notification-#{kase.case_number}"}
-          %td
-            %span.arrow                                    
-          %td.status Notice Sent
-          %td
-            %table.table.table-nolines
-              -kase.events_by_name(:Inspection).each do |n|
-                %tr
-                  %td.date=n.date.strftime("%-m/%-d/%y")
-                  %td A notice of hearing was sent to the property owner.
-
-
-
-      -if kase.events_by_name(:Hearing)
-        -kase.events_by_name(:Hearing).each do |r|
-          %tr{:class => "case-history-#{r.class} case-history-#{r.name}-#{kase.case_number}"}
-            %td
-              %span.arrow                                    
+    %tbody
+      -kase.ordered_events.each do |event|
+        -case event.name
+        -when "Inspection"
+          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+            %td 
+              %span.arrow            
             %td.status 
-              #{r.date < Time.now ? 'Case Heard' : 'Hearing Scheduled'}
+              Inspected
             %td
               %table.table-nolines
                 %tr
-                  %td.date=r.date.strftime("%-m/%-d/%y")
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td 
+                    Property was inspected
+                    -if event.dhash[:findings]
+                      and was found with #{event.dhash[:findings].count} violations. 
+                      %a{:id=>"see-violations", :href=>"#"}
+                        See Violations
+                      #list-of-violations
+                        -event.dhash[:findings].each_with_index do |violation, index|
+                          %p  
+                            #{index+1}) #{violation[1].gsub('HCEV', '')}
+
+            / -else
+            /   %td{:colspan => "3", :style => "text-align: center"} 
+            /     -if kase.state == 'Open'
+            /       A case for this property was created. Inspection is pending.
+            /     -else
+            /       A case for this property was created. No futher actions have occured. 
+            /       =link_to('#why-data-incomplete', "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-toggle"=>"modal", "data-title"=>"Receive notifications when the status of this property changes") do
+            /         Why?
+
+
+
+            /     %br
+            /     %br
+
+
+        -when 'Notification'
+          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+            %td
+              %span.arrow                                    
+            %td.status Notice Sent
+            %td
+              %table.table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td A notice of hearing was sent to the property owner.
+
+
+        -when 'Hearing'
+          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+            %td
+              %span.arrow                                    
+            %td.status 
+              #{event.date < Time.now ? 'Case Heard' : 'Hearing Scheduled'}
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
                   %td
-                    The case against this property #{r.date > Time.now ? 'will be' : 'was'} heard 
-      -if kase.events_by_name(:Judgment)
-        -kase.events_by_name(:Judgment).each do |r|
-          %tr{:class => "case-history-#{r.name} case-history-#{r.name}-#{kase.case_number}"}
+                    The case against this property #{event.date > Time.now ? 'will be' : 'was'} heard 
+        
+        -when 'Judgment'
+          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
             %td
               %span.arrow                                    
             %td.status
@@ -76,72 +73,69 @@
             %td
               %table.table-nolines
                 %tr
-                  %td.date=r.date.strftime("%-m/%-d/%y")
+                  %td.date=event.date.strftime("%-m/%-d/%y")
                   %td
-                    -if r.status.nil? || r.status =~ /Guilty/
-                      A judgment of <b>#{r.status ? r.status.capitalize : 'Guilty'}</b> was reached
-                    -elsif r.status =~ /Closed/
-                      This case has been <b>Closed</b> #{"(#{kase.judgement.notes})" if kase.judgement.notes}
-                    -elsif r.status.downcase =~ /rescinded/
+                    -if event.status.nil? || event.status.downcase =~ /guilty/
+                      A judgment of <b>#{event.status ? event.status.capitalize : 'Guilty'}</b> was reached
+                    -elsif event.status.downcase =~ /closed/
+                      This case has been <b>Closed</b> #{"(#{event.dhash[:notes]})" if event.dhash[:notes]}
+                    -elsif event.status.downcase =~ /rescinded/
                       The previous judgment for this case has been <b>rescinded</b>
                     -else
-                      A judgment of <b>#{r.status}</b> was reached
+                      A judgment of <b>#{event.status}</b> was reached
 
 
-      / These are resolutions brought through a code enforcement case
-      -if kase.events_by_name(:Resolution)
-        %tr{:class => "case-history-resolution case-history-resolution-#{kase.case_number}"}
-          %td
-            %table.table-nolines
-            -kase.events_by_name(:Resolution).each do |r|
-              %tr
-                %td
-                  %span.arrow
-                -if r.dhash[:type] == Demolition
-                  %td.status 
-                    Demolition
+          / These are resolutions brought through a code enforcement case
+        -when 'Resolution'
+          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+            %td
+              %table.table-nolines
+                %tr
                   %td
-                    %table.table-nolines
-                      %tr
-                        %td.date=r.date.strftime("%-m/%-d/%y")
-                        %td 
-                          This property was 
-                          -if r.program_name == "NORA"
-                            sold to the state and demolished through the <b>Road Home</b> program.
-                          -elsif r.program_name == "IDC"
-                            demolished because it was determined to be in <b>Imminent Danger of Collapse</b> 
-                          -elsif r.program_name == "SDER"
-                            demolished under the <b>City's Strategic Demolition</b> program
-                          -elsif r.program_name == "NOSD"
-                            demolished under the <b>City's Strategic Demolition</b> program
-                          -else
-                            demolished
+                    %span.arrow
+                  -if event.dhash[:resolution_type] == Demolition
+                    %td.status 
+                      Demolition
+                    %td
+                      %table.table-nolines
+                        %tr
+                          %td.date=event.date.strftime("%-m/%-d/%y")
+                          %td 
+                            This property was 
+                            -if event.program_name == "NORA"
+                              sold to the state and demolished through the <b>Road Home</b> program.
+                            -elsif event.program_name == "IDC"
+                              demolished because it was determined to be in <b>Imminent Danger of Collapse</b> 
+                            -elsif event.program_name == "SDER"
+                              demolished under the <b>City's Strategic Demolition</b> program
+                            -elsif event.program_name == "NOSD"
+                              demolished under the <b>City's Strategic Demolition</b> program
+                            -else
+                              demolished
 
-                - elsif r.dhash[:type] == Foreclosure
-                  %td.status 
-                    / =r.inspect
-                    Sheriff Sale 
-                    -if r.date > Time.now
-                      Scheduled
-                    / =r.inspect
-                  %td
-                    %table.table-nolines
-                      %tr
-                        %td.date=r.date.strftime("%-m/%-d/%y")
-                        %td 
-                          This property is scheduled for public auction in the lobby of the Civil District Courthouse at 421 Loyola Ave.
-                          %br
-                          -unless r.status.nil?
-                            The status is
-                            %b=r.status
+                  - elsif event.dhash[:resolution_type] == Foreclosure
+                    %td.status 
+                      Sheriff Sale 
+                      -if event.date > Time.now
+                        Scheduled
+                    %td
+                      %table.table-nolines
+                        %tr
+                          %td.date=event.date.strftime("%-m/%-d/%y")
+                          %td 
+                            This property is scheduled for public auction in the lobby of the Civil District Courthouse at 421 Loyola Ave.
+                            %br
+                            -unless event.status.nil?
+                              The status is
+                              %b=event.status
 
-                - elsif r.dhash[:type] == Maintenance
-                  %td.status Lot Cleared
-                  %td
-                    %table.table-nolines
-                      %tr
-                        %td.date=r.date.strftime("%-m/%-d/%y")
-                        %td This lot was cleared by #{r.program_name}
-                - else
-                  %td
-                    %td=r.dhash[:type].to_s + ": " + r.date.strftime("%-m/%-d/%y")
+                  - elsif event.dhash[:resolution_type] == Maintenance
+                    %td.status Lot Cleared
+                    %td
+                      %table.table-nolines
+                        %tr
+                          %td.date=event.date.strftime("%-m/%-d/%y")
+                          %td This lot was cleared by #{event.program_name}
+                  - else
+                    %td
+                      %td=event.dhash[:resolution_type].to_s + ": " + event.date.strftime("%-m/%-d/%y")

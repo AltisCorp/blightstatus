@@ -141,7 +141,7 @@ module LAMAHelpers
       if ((event.Type =~ /Notice/ || event.Name =~ /Notice/) && (event.Type =~ /Hearing/ || event.Name =~ /Hearing/)) || (event.Type == 'Notice' || event.Name == 'Notice')
         Event.create(:name => event.Name, :step => 'Notification', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
       elsif event.Type =~ /Administrative Hearing/
-        unless Event.where("name = 'Hearing' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
+        unless Event.where("step = 'Hearing' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
           Event.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
         end
       elsif ((event.Type =~ /Notice/ || event.Name =~ /Notice/) && (event.Type =~ /Reset/ || event.Name =~ /Reset/))
@@ -157,13 +157,13 @@ module LAMAHelpers
          end
        end
       elsif event.Type =~ /Inspection/ || event.Name =~ /Inspection/ || event.Type =~ /Reinspection/ || event.Name =~ /Reinspection/
-        unless Event.where("name = 'Inspection' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
           Event.create(:name => event.Name, :step => 'Inspection', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
         end
       elsif event.Type =~ /Complaint Received/ || event.Name =~ /Complaint Received/
         Event.create(:name => event.Name, :step => 'Intake', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
       elsif event.Type =~ /Research Property Record/
-        Event.create(:name => event.Name, :step => 'Research Property Record', :date => event.DateEvent, :status => event.Status)  
+        Event.create(:name => event.Name, :step => 'ResearchPropertyRecord', :date => event.DateEvent, :status => event.Status, :case_number => kase.case_number)  
       elsif (event.Name =~ /Judgment/ && (event.Name =~ /Posting/ || event.Name =~ /Notice/ || event.Name =~ /Recordation/))
         Event.find_or_create_by_case_number_and_name(:name => event.Name, :step => 'Judgment', :case_number => kase.case_number, :status => event.Status, :dhash => {:type => event.Type}, :date => event.DateEvent)
       elsif (event.Name =~ /Guilty/ || event.Status =~ /Guilty/ || event.Type =~ /Guilty/) && (event.Name =~ /Hearing/ || event.Status =~ /Hearing/ || event.Type =~ /Hearing/)#event.Name =~ /Hearing/
@@ -227,7 +227,7 @@ module LAMAHelpers
       
       if j_status
         # if j_status.length > 0
-        unless Event.where("name = 'Hearing' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
           Event.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :dhash => {:notes => notes}, :status => j_status, :date => event.DateEvent)
         end
         # else

@@ -1,10 +1,10 @@
 .case-history
   %table.table.table-condensed.timeline
     %tbody
-      -kase.ordered_events.each do |event|
-        -case event.name
+      -kase.events_cleansed.each do |event|
+        -case event.step
         -when "Inspection"
-          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+          %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}
             %td 
               %span.arrow            
             %td.status 
@@ -40,7 +40,7 @@
 
 
         -when 'Notification'
-          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+          %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}
             %td
               %span.arrow                                    
             %td.status Notice Sent
@@ -52,24 +52,11 @@
 
 
         -when 'Hearing'
-          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
+          %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}
             %td
               %span.arrow                                    
             %td.status 
               #{event.date < Time.now ? 'Case Heard' : 'Hearing Scheduled'}
-            %td
-              %table.table-nolines
-                %tr
-                  %td.date=event.date.strftime("%-m/%-d/%y")
-                  %td
-                    The case against this property #{event.date > Time.now ? 'will be' : 'was'} heard 
-        
-        -when 'Judgment'
-          %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
-            %td
-              %span.arrow                                    
-            %td.status
-              Judgment Recorded
             %td
               %table.table-nolines
                 %tr
@@ -81,8 +68,30 @@
                       This case has been <b>Closed</b> #{"(#{event.dhash[:notes]})" if event.dhash[:notes]}
                     -elsif event.status.downcase =~ /rescinded/
                       The previous judgment for this case has been <b>rescinded</b>
-                    -else
+                    -elsif event.status
                       A judgment of <b>#{event.status}</b> was reached
+                    -else
+                      The case against this property #{event.date > Time.now ? 'will be' : 'was'} heard 
+        
+        -when 'Judgment'
+          %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}
+            %td
+              %span.arrow                                    
+            %td.status
+              #{event.name}
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td
+                    / -if event.status.nil? || event.status.downcase =~ /guilty/
+                    /   A judgment of <b>#{event.status ? event.status.capitalize : 'Guilty'}</b> was reached
+                    / -elsif event.status.downcase =~ /closed/
+                    /   This case has been <b>Closed</b> #{"(#{event.dhash[:notes]})" if event.dhash[:notes]}
+                    / -elsif event.status.downcase =~ /rescinded/
+                    /   The previous judgment for this case has been <b>rescinded</b>
+                    / -else
+                    /   A judgment of <b>#{event.status}</b> was reached
 
 
           / These are resolutions brought through a code enforcement case
@@ -139,3 +148,15 @@
                   - else
                     %td
                       %td=event.dhash[:resolution_type].to_s + ": " + event.date.strftime("%-m/%-d/%y")
+
+        -when "Research Property Record"
+          %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
+            %td
+              %span.arrow                                    
+            %td.status
+              #{event.name}
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td

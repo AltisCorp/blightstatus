@@ -30,22 +30,35 @@ class Case < ActiveRecord::Base
     events_hash
   end
 
-  # def events_summary
-  #   event_array = []
-  #   # events_by_name.each_value{ |event_name_list| event_array << event_name_list.first }
-  #   events_by_step.each_value do |event_name_list| 
-  #     event_array << event_name_list.first
-  #   end
-  #   event_array.sort{|a,b| a.date <=> b.date}
-  # end
+  def events_cleansed
+    steps = ordered_events
+    reset = reset_step
+    if reset
+      detail = []
+      steps = steps.reverse
+      steps.each do |last|
+        break if last == reset
+        detail.insert(0, last)
+      end
+      steps = detail
+    end
+    steps
+  end
 
   def events_by_step(step)
-    events_grouped_by_step[step.to_sym]
+    events_grouped_by_step[step.to_sym]# || []
   end
 
   def missing_event?(step)
     false
   end
+
+  def reset_step
+    reset = nil
+    steps = events_by_step('ResearchPropertyRecord')
+    reset = steps.last if steps
+    reset
+  end  
 
   def data_error?
 

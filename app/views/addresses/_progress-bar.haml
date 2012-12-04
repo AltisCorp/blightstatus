@@ -89,7 +89,7 @@
 
           %td
             -if kase.events_by_step(:Resolution)
-              -if kase.events_by_name(:Resolution).first.date > Time.now
+              -if kase.events_by_step(:Resolution).first.date > Time.now
                 .progress-arrow.resolution.loading{:class => "resolution-#{kase.case_number}", :style => "z-index: 10"}
               -else
                 .progress-arrow.resolution{:class => "resolution-#{kase.case_number}", :style => "z-index: 10"}

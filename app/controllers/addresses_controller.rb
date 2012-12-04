@@ -119,24 +119,25 @@ class AddressesController < ApplicationController
 
     case params[:status]
       when 'inspections'
-        cases = Case.includes(:address, :inspections).where(" cases.address_id = addresses.id  AND inspections.inspection_date > :start_date AND inspections.inspection_date < :end_date #{append_sql_query} ",  sql_params)
+        cases = Case.includes(:address, :events).where(" events.step = 'Inspection' AND cases.address_id = addresses.id  AND events.date > :start_date AND events.date < :end_date #{append_sql_query} ",  sql_params)
+        # cases = Case.includes(:address, :inspections).where(" cases.address_id = addresses.id  AND inspections.inspection_date > :start_date AND inspections.inspection_date < :end_date #{append_sql_query} ",  sql_params)
       when 'notifications'
-        cases = Case.includes(:address, :notifications).where(" cases.address_id = addresses.id  AND notified > :start_date  AND notified < :end_date #{append_sql_query}",   sql_params)
+        cases = Case.includes(:address, :events).where(" events.step = 'Notification' AND cases.address_id = addresses.id  AND events.date > :start_date  AND events.date < :end_date #{append_sql_query}",   sql_params)
       when 'hearings'
-        cases = Case.includes(:address, :hearings).where(" cases.address_id = addresses.id  AND  hearing_date > :start_date  AND hearing_date < :end_date #{append_sql_query}",   sql_params )
+        cases = Case.includes(:address, :events).where(" events.step = 'Hearing' AND cases.address_id = addresses.id  AND  events.date > :start_date  AND events.date < :end_date #{append_sql_query}",   sql_params )
       when 'judgement'
-        cases = Case.includes(:address, :judgements).where(" cases.address_id = addresses.id  AND  judgement_date > :start_date  AND judgement_date < :end_date #{append_sql_query}", sql_params )
-      when "foreclosures"
-        case_addresses = Address.includes(:foreclosures).where(" foreclosures.sale_date > :start_date  AND foreclosures.sale_date <  :end_date  " ,  sql_params )
-      when "demolitions"
-        case_addresses = Address.includes(:demolitions).where(" demolitions.date_completed > :start_date AND demolitions.date_completed < :end_date  ",   sql_params)
+        cases = Case.includes(:address, :events).where(" events.step = 'Judgment' AND cases.address_id = addresses.id  AND  events.date > :start_date  AND events.date < :end_date #{append_sql_query}", sql_params )
+      when "resolution"
+        case_addresses = Case.includes(:address,:events).where(" event.step = 'Resolution' AND cases.address_id = address.id AND events.date > :start_date  AND foreclosures.sale_date <  :end_date  " ,  sql_params )
+      # when "demolitions"
+      #   case_addresses = Address.includes(:demolitions).where(" demolitions.date_completed > :start_date AND demolitions.date_completed < :end_date  ",   sql_params)
       # when 'abatement'
       #   cases = Case.includes(:address, :maintenances).where(" cases.address_id = addresses.id  AND  date_completed > :start_date   AND date_completed < :end_date  #{append_sql_query}",   sql_params)
     end
 
 
     # TODO: REWRITE FRONTEND SO IT CAN HANDLE RETURNED ARRAY OF ADDRESSES
-    if params[:status] == 'inspections' || params[:status] == 'notifications' || params[:status] == 'hearings'|| params[:status] == 'judgement'
+    if params[:status] == 'inspections' || params[:status] == 'notifications' || params[:status] == 'hearings'|| params[:status] == 'judgment'
       if cases.nil?
         cases = {}
       end

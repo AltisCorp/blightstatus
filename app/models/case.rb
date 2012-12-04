@@ -61,7 +61,10 @@ class Case < ActiveRecord::Base
   end  
 
   def data_error?
-
+    events_seq = {}
+    events seq[:NOLA_BLIGHT] = [:Inspection, :Notification, :Hearing, :Judgment, :Resolution]
+    grouped_events = self.events_grouped_by_step
+    
     # if case_steps == 1 && missing_inspection?
     #   true
     # elsif case_steps == 2 && missing_notification?

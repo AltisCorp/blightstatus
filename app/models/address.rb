@@ -7,17 +7,17 @@ class Address < ActiveRecord::Base
   belongs_to :neighborhood
   belongs_to :street
   has_many :cases
-  has_many :demolitions
-  has_many :foreclosures
-  has_many :maintenances
+  # has_many :demolitions
+  # has_many :foreclosures
+  # has_many :maintenances
 
   has_many :subscriptions
   has_many :accounts, :through => :subscriptions
 
-  has_many :inspections, :through => :cases
-  has_many :notifications, :through => :cases
-  has_many :hearings, :through => :cases
-  has_many :judgements, :through => :cases
+  # has_many :inspections, :through => :cases
+  # has_many :notifications, :through => :cases
+  # has_many :hearings, :through => :cases
+  # has_many :judgements, :through => :cases
 
   has_one :double_address, :class_name => "Address", :foreign_key => :double_id
 
@@ -33,45 +33,47 @@ class Address < ActiveRecord::Base
     end
   end
 
-  def latest_status
-    latest_step = nil
-    if latest_id
-      begin
-        latest_step = Kernel.const_get(latest_type).find(latest_id)
-      rescue ActiveRecord::RecordNotFound
-        #if !self.workflow_steps.empty?
-        latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
-        if latest_step
-          self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
-        else
-          self.update_attributes(:latest_id => nil, :latest_type => nil)
-        end
-      end
-    elsif !self.workflow_steps.empty?
-      latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
-      self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
-    end
-    return latest_step
-  end
+  # def latest_status
+  #   latest_step = nil
+  #   if latest_id
+  #     begin
+  #       latest_step = Kernel.const_get(latest_type).find(latest_id)
+  #     rescue ActiveRecord::RecordNotFound
+  #       #if !self.workflow_steps.empty?
+  #       latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
+  #       if latest_step
+  #         self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
+  #       else
+  #         self.update_attributes(:latest_id => nil, :latest_type => nil)
+  #       end
+  #     end
+  #   elsif !self.workflow_steps.empty?
+  #     latest_step = self.workflow_steps.sort{ |a, b| a.date <=> b.date }.last #can be faster of case.last_step is used
+  #     self.update_attributes({:latest_id => latest_step.id, :latest_type => latest_step.class.to_s})
+  #   end
+  #   return latest_step
+  # end
 
   def most_recent_status
-    latest_status
+    # latest_status
+    kase = most_relevant_case
+    kase.ordered_case_steps.last
   end
 
-  def update_most_recent_status(status)
-    if (self.most_recent_status.nil?) || (self.most_recent_status.date < status.date)
-      self.update_attributes({latest_id: status.id, latest_type: status.class.to_s})
-    end
-  end
+  # def update_most_recent_status(status)
+  #   if (self.most_recent_status.nil?) || (self.most_recent_status.date < status.date)
+  #     self.update_attributes({latest_id: status.id, latest_type: status.class.to_s})
+  #   end
+  # end
 
-  def most_recent_status_preview
-    self.most_recent_status.nil? ? {} : {:type => self.most_recent_status.class.to_s, :date => self.most_recent_status.date.strftime('%B %e, %Y')} 
-  end
+  # def most_recent_status_preview
+  #   self.most_recent_status.nil? ? {} : {:type => self.most_recent_status.class.to_s, :date => self.most_recent_status.date.strftime('%B %e, %Y')} 
+  # end
 
   def resolutions
-    res_ary = []
-    res_ary << self.foreclosures << self.demolitions << self.maintenances
-    res_ary.flatten.compact
+    # res_ary = []
+    # res_ary << self.foreclosures << self.demolitions << self.maintenances
+    # res_ary.flatten.compact
   end
 
   def set_assessor_link
@@ -81,21 +83,21 @@ class Address < ActiveRecord::Base
   end
 
   def sorted_cases
-    self.cases.sort{ |a, b| ( a.most_recent_status and b.most_recent_status ) ? a.most_recent_status.date <=> b.most_recent_status.date : ( a.most_recent_status ? -1 : 1 ) }
+    self.cases.sort{ |a, b| a.filed <=> b.filed }
   end
 
-  def cases_sorted_by_state
-    self.cases.sort{|a,b| b.ordered_events <=> a.ordered_events}
-  end
+  # def cases_sorted_by_state
+  #   self.cases.sort{|a,b| b.ordered_events <=> a.ordered_events}
+  # end
 
-  def workflow_steps
-    steps_ary = []
-    self.cases.each do |c|
-      steps_ary << c.accela_steps
-    end
-    steps_ary << self.resolutions
-    steps_ary.flatten.compact
-  end
+  # def workflow_steps
+  #   steps_ary = []
+  #   self.cases.each do |c|
+  #     steps_ary << c.accela_steps
+  #   end
+  #   steps_ary << self.resolutions
+  #   steps_ary.flatten.compact
+  # end
 
   def assign_double
     return unless self.double_address.nil?
@@ -137,20 +139,19 @@ class Address < ActiveRecord::Base
     LAMAHelpers.import_by_location(self.address_long)
   end
 
-  def self.match_abatement(abatement)
-    address = AddressHelpers.find_address(abatement.address_long) if abatement.address_long
-    address = address.first
-    if address
-      abatement.update_attribute(:address_id, address.id)
-      abatement.update_attribute(:case_number, nil) if abatement.case_number && abatement.address_id && abatement.address_id != abatement.case.address_id
-      abatement.address
+  # def self.match_abatement(abatement)
+  #   address = AddressHelpers.find_address(abatement.address_long) if abatement.address_long
+  #   address = address.first
+  #   if address
+  #     abatement.update_attribute(:address_id, address.id)
+  #     abatement.update_attribute(:case_number, nil) if abatement.case_number && abatement.address_id && abatement.address_id != abatement.case.address_id
+  #     abatement.address
       
-      Case.match_abatement(abatement) if abatement.address
-    end    
-  end
+  #     Case.match_abatement(abatement) if abatement.address
+  #   end    
+  # end
 
   def most_relevant_case
-    status = most_recent_status
-    status ? status.case : nil
+    cases.select{|kase| kase.state == 'Open'}.first || sorted_cases.last
   end
 end

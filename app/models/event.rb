@@ -4,7 +4,7 @@ class Event < ActiveRecord::Base
   
   attr_protected :dstore
   belongs_to :case, :foreign_key => :case_number, :primary_key => :case_number
-  validates_uniqueness_of :date, :scope => [:case_number, :name]
+  validates_uniqueness_of :date, :scope => [:case_number, :name,:dstore]
 
   before_save :update_dstore
 

@@ -125,14 +125,10 @@ class AddressesController < ApplicationController
         cases = Case.includes(:address, :events).where(" events.step = 'Notification' AND cases.address_id = addresses.id  AND events.date > :start_date  AND events.date < :end_date #{append_sql_query}",   sql_params)
       when 'hearings'
         cases = Case.includes(:address, :events).where(" events.step = 'Hearing' AND cases.address_id = addresses.id  AND  events.date > :start_date  AND events.date < :end_date #{append_sql_query}",   sql_params )
-      when 'judgement'
+      when 'judgment'
         cases = Case.includes(:address, :events).where(" events.step = 'Judgment' AND cases.address_id = addresses.id  AND  events.date > :start_date  AND events.date < :end_date #{append_sql_query}", sql_params )
       when "resolution"
-        case_addresses = Case.includes(:address,:events).where(" event.step = 'Resolution' AND cases.address_id = address.id AND events.date > :start_date  AND foreclosures.sale_date <  :end_date  " ,  sql_params )
-      # when "demolitions"
-      #   case_addresses = Address.includes(:demolitions).where(" demolitions.date_completed > :start_date AND demolitions.date_completed < :end_date  ",   sql_params)
-      # when 'abatement'
-      #   cases = Case.includes(:address, :maintenances).where(" cases.address_id = addresses.id  AND  date_completed > :start_date   AND date_completed < :end_date  #{append_sql_query}",   sql_params)
+        cases = Case.includes(:address,:events).where(" event.step = 'Resolution' AND cases.address_id = address.id AND events.date > :start_date  AND foreclosures.sale_date <  :end_date  " ,  sql_params )
     end
 
 
@@ -184,22 +180,7 @@ class AddressesController < ApplicationController
     Rails.logger.debug '-----------GET STATS-----------------'
     Rails.logger.debug status.inspect
     Rails.logger.debug sql_params.inspect
-    case status
-      when "inspections"
-        Inspection.where(" inspections.inspection_date > :start_date AND inspections.inspection_date < :end_date ",  sql_params).results
-      when "notifications"
-        Notification.where(" notified > :start_date  AND notified < :end_date ",   sql_params).types
-      when "hearings"
-        Hearing.where(" hearing_date > :start_date  AND hearing_date < :end_date ",   sql_params ).status
-      when "judgements"
-        Judgement.where(" judgement_date > :start_date  AND judgement_date < :end_date ", sql_params ).status
-      when "maintenances"
-        Maintenance.where(" date_completed > :start_date   AND date_completed < :end_date ",  sql_params ).status
-      when "foreclosures"
-        Foreclosure.where(" sale_date > :start_date  AND sale_date <  :end_date  " ,  sql_params ).status
-      when "demolitions"
-        Demolition.where(" date_completed > :start_date   AND date_completed < :end_date  ",   sql_params).status
-    end
+    Event.where("step = '#{status.singularize.capitalize}' AND date > :start_date AND date < :end_date ",  sql_params).results
   end
 
 end

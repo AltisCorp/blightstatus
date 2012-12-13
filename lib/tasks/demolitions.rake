@@ -25,7 +25,15 @@ namespace :demolitions do
           if row['Number'].to_s.end_with?(".0")
             row['Number'] = row['Number'].to_i.to_s
           end
-          Demolition.find_or_create_by_address_long_and_date_completed(:house_num => row['Number'], :street_name => row['Street'].upcase, :address_long => "#{row['Number']} #{row['Street']}".upcase, :date_started => row['Demo Start'], :date_completed => row['Demo Complete'], :program_name => "NORA")
+
+          date_completed = row['Demo Complete']
+          address_long = "#{row['Number']} #{row['Street']}".upcase
+          puts row.inspect
+          if Event.where("name = 'Demolition' AND date = '#{date_completed}' AND dstore -> 'address_long' = '#{address_long}'").empty?
+            Event.create(:name => 'Demolition', :step => 'Resolution', :date => date_completed, :dhash => {:house_num => row['Number'], :street_name => row['Street'].upcase, :address_long => address_long, :date_started => row['Demo Start'], :date_completed => date_completed, :program_name => "NORA"})
+          else
+            puts event found => Event.where("name = 'Demolition' AND date = '#{date_completed}' AND dstore -> 'address_long' = '#{address_long}'").first.inspect
+          end 
         end
       end
     end
@@ -123,16 +131,49 @@ namespace :demolitions do
   task :load_socrata => :environment  do |t, args|
     properties = ImportHelpers.download_json_convert_to_hash('https://data.nola.gov/api/views/abvi-rghr/rows.json?accessType=DOWNLOAD')
     exceptions = []
+    created, updated = 0
     properties[:data].each do |row|
+      # puts "row --> #{row.inspect}"
+        date_started, date_completed, address_long, house_num,street_name = nil
       begin
-        house_num = row[11].split(' ')[0]
-        Demolition.find_or_create_by_address_long_and_date_completed(:house_num => house_num, :street_name => row[11].sub(house_num + ' ', '').upcase, :address_long =>  row[11], :date_completed => row[14], :program_name => row[8])
+        date_started = row[13]
+        date_completed = row[14]
+        
+        
+        address_long = row[11]
+        address_long = row[9] if address_long
+        address_long = address_long.strip if address_long
+        house_num = address_long.split(' ')[0] if address_long
+        case_id = row[10]
+        street_name = address_long.sub(house_num + ' ', '').upcase if address_long && house_num
+
+        
+        # if Event.where("name = 'Demolition' AND date = '#{date_completed}' AND dstore -> 'address_long' = '#{address_long}'").empty?
+        demo = Event.where("name = 'Demolition' AND dstore -> 'address_long' = '#{address_long}'").first
+        if demo
+          if date_started && !demo.dhash[:date_started]
+            demo.dhash[:date_started] = date_started
+            demo.update_attribute(:dhash, demo.dhash)
+            demo.update_attribute(:date, date_started)
+          end
+          if date_completed && !demo.dhash[:date_completed]
+            demo.dhash[:date_completed] = date_completed
+            demo.update_attribute(:dhash, demo.dhash)
+            demo.update_attribute(:date, date_completed)
+          end
+          updated+=1
+        else
+          Event.create(:step => 'Resolution', :name => 'Demolition', :date => date_completed, :dhash => {:house_num => house_num, :street_name => street_name, :address_long => address_long, :date_started => date_started, :date_completed => date_completed, :program_name => row[8], :case_id => case_id})
+          created+=1
+        end 
       rescue
+        puts "row --> #{row.inspect}"
         #these exceptions are for properties that are missing most data, except for address, date demolished, and program (they are all NORA). What do we want to do with them?
         exceptions.push({ :exception => $!, :row => row })
       end
     end
-    
+    puts "updated => #{updated}"
+    puts "created => #{created}"
     if exceptions.length
       puts "There are #{exceptions.length} import errors"
       exceptions.each do |e|
@@ -162,9 +203,9 @@ namespace :demolitions do
   desc "Correlate demolition data with cases"  
   task :match_case => :environment  do |t, args|
     # go through each demolition
-    demolitions = Demolition.where("address_id is not null and case_number is null")
+    demolitions = Event.where("name = 'Demolition' AND case_number is null")
     demolitions.each do |demolition|
-      Case.match_abatement(demolition)
+      Case.match_resolution(demolition)
     end
   end
 

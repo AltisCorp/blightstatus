@@ -82,6 +82,20 @@ class Case < ActiveRecord::Base
   def update_dstore
     self.dstore = self.dhash
   end
+
+  def self.match_resolution(resolution)
+    address_long = resolution.dhash[:address_long]
+    if address_long
+      address = AddressHelpers.find_address(address_long)
+      address = address.first
+      case_num = nil
+    
+      address.sorted_cases.each do |kase|
+        resolution.date > kase.ordered_case_steps.last.date ? case_num = kase.case_number : break
+      end
+      resolution.update_attribute(:case_number, case_number) if case_num
+    end
+  end
   # def first_inspection
   #   self.inspections.sort{ |a, b| a.date <=> b.date }.first
   # end

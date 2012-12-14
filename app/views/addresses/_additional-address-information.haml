@@ -1,31 +1,35 @@
-/ -if (!address.demolitions.empty? && address.demolitions.first.case_number.nil? ) || (!address.foreclosures.empty? && address.foreclosures.first.case_number.nil? )
-/   .additional-address-information
-/     %hr.soften
-/     %h2
-/       Additional Information
-/     %ul
-/       -address.demolitions.group_by(&:address_id).each do |a,d|
-/         %li
-/           This property was 
-/           -if d.first.program_name == "NORA"
-/             sold to the state and demolished through the <b>Road Home</b> program.
-/           -elsif d.first.program_name == "IDC"
-/             demolished because it was determined to be in <b>Imminent Danger of Collapse</b> 
-/           -elsif d.first.program_name == "SDER"
-/             demolished under the City's Strategic Demolition program
-/           -elsif d.first.program_name == "NOSD"
-/             demolished under the City's Strategic Demolition program
-/           -else
-/             demolished
+-resolutions_without_case.each do |r|
+  .additional-address-information
+    %hr.soften
+    %h2
+      Additional Information
+    %ul
+      -resolutions_without_case.each do |r|
+        %li
+          -if r.name == 'Demolition'
+            This property was 
+            -if r.dhash[:program_name] == "FEMA"
+              demolished under by <b>FEMA</b>
+            -elsif r.dhash[:program_name] == "NORA"
+              sold to the state and demolished through the <b>Road Home</b> program
+            -elsif r.dhash[:program_name] == "IDC"
+              demolished because it was determined to be in <b>Imminent Danger of Collapse</b> 
+            -elsif r.dhash[:program_name] == "SDER"
+              demolished under the <b>City's Strategic Demolition</b> program
+            -elsif r.dhash[:program_name] == "NOSD"
+              demolished under the <b>City's Strategic Demolition</b> program
+            -else
+              demolished
+          -if r.name == 'Foreclosure'
+            This property foreclosed on by the city
+            -if r.date
+              =on =r.dhash[:sale_date].strftime("%-m/%-d/%y")
+            -if d.dhash[:notes]
+              the latest status was a 
+              =d.dhash[:notes]
+            on
+            %b=d.dhash[:date_completed].strftime("%-m/%-d/%y")
 
-/           on
-/           %b=d.first.date_completed.strftime("%-m/%-d/%y")
-
-/       -address.foreclosures.each do |d|
-/         %li
-/           This property foreclosed on by the city
-/           -unless d.sale_date.nil?
-/             =on =d.sale_date.strftime("%-m/%-d/%y")
-/           -unless d.notes.nil?
-/             the latest status was a 
-/             =d.notes
+          -if r.name == 'Maintenance'
+            This lot was cleared by #{r.dhash[:program_name]} on
+            =r.date.strftime("%-m/%-d/%y")

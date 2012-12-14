@@ -1,6 +1,42 @@
 .case-history
   %table.table.table-condensed.timeline
     %tbody
+    -if kase.filed
+      %tr{:class => "case-history-resolution case-history-resolution-#{kase.case_number}"}
+        %td
+          %span.arrow
+        %td.status
+          Case Filed
+        %td
+          %table.table-nolines
+            %tr
+              %td.date=kase.filed.strftime("%-m/%-d/%y")
+              %td A case for this property was created
+
+    -if kase.history.empty?
+      %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
+        -if kase.state == 'Open'
+          %td 
+            %span.arrow            
+          %td.status
+            Inspection
+          %td
+            %table.table-nolines
+              %td{:colspan => "3", :style => "text-align: center"} 
+                -if kase.state == 'Open'
+                  Inspection is pending.
+        -elsif kase.state == 'Closed'
+          %td 
+            %span.arrow            
+          %td.status
+            Case Closed
+          %td
+            %table.table-nolines
+              %td{:colspan => "3", :style => "text-align: center"}                 
+                A case for this property was created. No futher actions have occured. 
+                =link_to('#why-data-incomplete', "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-toggle"=>"modal", "data-title"=>"Receive notifications when the status of this property changes") do
+                  Why?
+
       -kase.events_cleansed.each do |event|
         -case event.step
         -when "Inspection"
@@ -23,21 +59,6 @@
                         -event.dhash[:findings].each_with_index do |violation, index|
                           %p  
                             #{index+1}) #{violation[1].gsub('HCEV', '')}
-
-            / -else
-            /   %td{:colspan => "3", :style => "text-align: center"} 
-            /     -if kase.state == 'Open'
-            /       A case for this property was created. Inspection is pending.
-            /     -else
-            /       A case for this property was created. No futher actions have occured. 
-            /       =link_to('#why-data-incomplete', "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-toggle"=>"modal", "data-title"=>"Receive notifications when the status of this property changes") do
-            /         Why?
-
-
-
-            /     %br
-            /     %br
-
 
         -when 'Notification'
           %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}
@@ -93,8 +114,6 @@
                     / -else
                     /   A judgment of <b>#{event.status}</b> was reached
 
-
-          / These are resolutions brought through a code enforcement case
         -when 'Resolution'
           %tr{:class => "case-history-#{event.name.downcase} case-history-#{event.name.downcase}-#{kase.case_number}"}
             %td
@@ -102,7 +121,7 @@
                 %tr
                   %td
                     %span.arrow
-                  -if event.dhash[:resolution_type] == Demolition
+                  -if event.name == 'Demolition'
                     %td.status 
                       Demolition
                     %td
@@ -111,7 +130,9 @@
                           %td.date=event.date.strftime("%-m/%-d/%y")
                           %td 
                             This property was 
-                            -if event.program_name == "NORA"
+                            -if step.program_name == "FEMA"
+                              demolished under by <b>FEMA</b>
+                            -elsif event.program_name == "NORA"
                               sold to the state and demolished through the <b>Road Home</b> program.
                             -elsif event.program_name == "IDC"
                               demolished because it was determined to be in <b>Imminent Danger of Collapse</b> 
@@ -122,7 +143,7 @@
                             -else
                               demolished
 
-                  - elsif event.dhash[:resolution_type] == Foreclosure
+                  - elsif event.name == 'Foreclosure'
                     %td.status 
                       Sheriff Sale 
                       -if event.date > Time.now
@@ -138,7 +159,7 @@
                               The status is
                               %b=event.status
 
-                  - elsif event.dhash[:resolution_type] == Maintenance
+                  - elsif event.name == 'Maintenance'
                     %td.status Lot Cleared
                     %td
                       %table.table-nolines
@@ -147,12 +168,36 @@
                           %td This lot was cleared by #{event.program_name}
                   - else
                     %td
-                      %td=event.dhash[:resolution_type].to_s + ": " + event.date.strftime("%-m/%-d/%y")
+                      %td=event.name + ": " + event.date.strftime("%-m/%-d/%y")
 
         -when "Research Property Record"
-          %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
+          %tr{:class => "case-history-inspection case-history-inspection-#{event.case_number}"}
             %td
               %span.arrow                                    
+            %td.status
+              #{event.name}
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td
+
+        -when 'Reset'
+          %tr{:class => "case-history-resolution case-history-resolution-#{event.case_number}"}
+            %td
+              %span.arrow
+            %td.status
+              Case Reset
+            %td
+              %table.table-nolines
+                %tr
+                  %td.date=event.date.strftime("%-m/%-d/%y")
+                  %td The hearing for this case was reset.  A new hearing will be scheduled.
+        
+        -else
+          %tr{:class => "case-history-resolution case-history-resolution-#{event.case_number}"}
+            %td
+              %span.arrow
             %td.status
               #{event.name}
             %td

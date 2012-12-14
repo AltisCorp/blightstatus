@@ -163,7 +163,8 @@ namespace :demolitions do
           end
           updated+=1
         else
-          Event.create(:step => 'Resolution', :name => 'Demolition', :date => date_completed, :dhash => {:house_num => house_num, :street_name => street_name, :address_long => address_long, :date_started => date_started, :date_completed => date_completed, :program_name => row[8], :case_id => case_id})
+          abatement = Event.create(:step => 'Resolution', :name => 'Demolition', :date => date_completed, :dhash => {:house_num => house_num, :street_name => street_name, :address_long => address_long, :date_started => date_started, :date_completed => date_completed, :program_name => row[8], :case_id => case_id})
+          Case.match_abatement(abatement)
           created+=1
         end 
       rescue

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -17,7 +17,8 @@ gem 'devise-async'
 
 gem 'lama', :git => 'https://github.com/gangleton/lama.git'
 gem 'savon'
-gem "httpclient", "~> 2.3.0"
+gem 'httpclient', "~> 2.3.0"
+# gem 'mechanize'
 
 gem 'delayed_job_active_record'
 gem 'json-schema'
@@ -38,7 +39,7 @@ gem 'thin'
 
 gem 'newrelic_rpm'
 
-gem 'debugger'
+gem 'debugger', '1.2.2'
 
 gem 'activerecord-postgres-hstore', git: 'git://github.com/engageis/activerecord-postgres-hstore.git'
 
@@ -57,16 +58,16 @@ end
 
 # Testing
 group :test, :development do
-  gem "test-unit"
-	gem "rspec-rails", '>= 2.9.0' 
-	gem "shoulda"
+  gem 'test-unit'
+	gem 'rspec-rails', '>= 2.9.0' 
+	gem 'shoulda'
 
-	gem "capybara"
+	gem 'capybara'
 	
-	gem "factory_girl_rails"
-  gem "faker"
+	gem 'factory_girl_rails'
+  gem 'faker'
 
-  gem "simplecov"
+  gem 'simplecov'
 end
 
 group :development do
@@ -74,7 +75,7 @@ group :development do
 end
 
 group :test do
-  gem "rake"
+  gem 'rake'
 end
 
 # To use ActiveModel has_secure_password

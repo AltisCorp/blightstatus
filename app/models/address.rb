@@ -33,6 +33,13 @@ class Address < ActiveRecord::Base
     end
   end
 
+  def resolutions_without_case
+    Event.where("case_number is null AND dstore ->'address_id=#{self.id}'")
+  end
+
+  def has_resolutions_without_case?
+    resolutions_without_case.any?
+  end
   # def latest_status
   #   latest_step = nil
   #   if latest_id
@@ -86,9 +93,13 @@ class Address < ActiveRecord::Base
     self.cases.sort{ |a, b| a.filed <=> b.filed }
   end
 
-  # def cases_sorted_by_state
-  #   self.cases.sort{|a,b| b.ordered_events <=> a.ordered_events}
-  # end
+  def cases_sorted_by_state
+    self.cases.sort_by {|i| -i.state.length} 
+
+    self.cases.sort{|a,b| a.state.length <=> b.state.length}
+
+    # sort{|a,b| b.case_steps <=> a.case_steps}
+  end
 
   # def workflow_steps
   #   steps_ary = []

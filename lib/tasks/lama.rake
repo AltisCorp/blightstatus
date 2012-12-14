@@ -38,11 +38,17 @@ namespace :lama do
   desc "Import day's LAMA events"
   task :load_latest => :environment do |t, args|
     date = Time.now
-    end_date = date - 1.day
-
-    Rake::Task["lama:load_by_date"].invoke(end_date, date)
+    event_dates = [] 
+    event_dates << Inspection.last.date << Hearing.last.date << Notification.last.date << Judgement.last.date
+    end_date = event_dates.sort{|a,b| a <=> b}.last 
 
     Hearing.clear_incomplete
+    puts "load lama start:#{end_date.strftime("%-m/%-d/%y")} - end#{date.strftime("%-m/%-d/%y")}"
+    Rake::Task["lama:load_by_date"].invoke(end_date, date)
+  end
+
+  desc "Send notifications for new events"
+  task :send_notifications => :environment do |t, args|
     Account.all.each(&:send_digest)
   end
 
@@ -238,4 +244,53 @@ namespace :lama do
       end
     end
   end
+
+  desc "reload cases without steps"
+  task :reload_cases_without_steps => :environment do |t, args|
+    l = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    where = "hearings.id IS NULL AND judgements.id IS NULL AND inspections.id IS NULL AND notifications.id IS NULL AND filed IS NULL AND state = 'Open'"
+    Case.includes([:inspections,:notifications, :hearings, :judgements]).where(where).find_each do |kase|
+      if LAMAHelpers.reloadCase(kase.case_number,l).nil?
+        puts "FAILURE : #{case_number} failed to re-import !!!!!!" 
+        break
+      end
+    end
+  end
+
+  desc "save case filed date for all cases with no steps and no filed date"
+  task :update_filed_case_without_steps => :environment do |t, args|    
+    l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    where = "hearings.id IS NULL AND judgements.id IS NULL AND inspections.id IS NULL AND notifications.id IS NULL AND filed IS NULL AND state = 'Open'"
+    Case.includes([:inspections,:notifications, :hearings, :judgements]).where(where).find_each do |kase|
+      puts kase.case_number
+      incident = l.incident(kase.case_number)
+      if incident && incident.DateFiled
+        kase.update_attribute(:filed, incident.DateFiled)
+      end
+    end
+  end
+
+  desc "save case filed date for all cases"
+  task :update_filed_case => :environment do |t, args|    
+    l = LAMA.new({ :login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    Case.where(:filed => nil).find_each do |kase|
+      puts kase.case_number
+      incident = l.incident(kase.case_number)
+      if incident && incident.DateFiled
+        kase.update_attribute(:filed, incident.DateFiled)
+      end
+    end
+  end
+
+  desc "generate case_list"
+  task :reload_cases_where_steps_after_judgement => :environment do |t, args|
+    l = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']})
+    puts "#{Case.includes([:inspections, :notifications, :hearings, :judgements]).where('judgements.judgement_date < hearings.hearing_date OR judgements.judgement_date <  inspections.inspection_date OR notifications.notified > judgements.judgement_date').count}"
+    Case.includes([:inspections, :notifications, :hearings, :judgements]).where('judgements.judgement_date < hearings.hearing_date OR judgements.judgement_date <  inspections.inspection_date OR notifications.notified > judgements.judgement_date').find_each do |kase|
+      if LAMAHelpers.reloadCase(kase.case_number,l).nil?
+        puts "FAILURE : #{case_number} failed to re-import !!!!!!" 
+        break
+      end
+    end
+  end    
 end

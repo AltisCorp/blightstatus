@@ -34,7 +34,7 @@ class Address < ActiveRecord::Base
   end
 
   def resolutions_without_case
-    Event.where("case_number is null AND dstore ->'address_id=#{self.id}'")
+    Event.where("case_number is null AND dstore @> 'address_id=>#{self.id}'")
   end
 
   def has_resolutions_without_case?

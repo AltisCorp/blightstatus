@@ -92,7 +92,9 @@ class Case < ActiveRecord::Base
         case_dhash[:address_id ] = address.id
         resolution.update_attribute(:dhash, case_dhash)
         address.sorted_cases.each do |kase|
-          resolution.date > kase.ordered_case_steps.last.date ? case_num = kase.case_number : break
+          if kase.ordered_events.last
+            resolution.date > kase.ordered_events.last.date ? case_num = kase.case_number : break
+          end
         end
         resolution.update_attribute(:case_number, case_number) if case_num
       end

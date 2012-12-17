@@ -183,23 +183,23 @@ namespace :demolitions do
     end
   end
 
-  desc "Correlate demolitions data with addresses"  
-  task :match => :environment  do |t, args|
-    # go through each foreclosure
-    success = 0
-    failure = 0
-    case_matches = 0
-    Demolition.where('address_id is null').each do |demolition|
-      if Address.match_abatement(demolition)
-        case_matches += 1 if Case.match_abatement(demolition)
-        success +=1
-      else
-        puts "#{demolition.address_long} address not found in address table"
-        failure += 1
-      end
-    end
-    puts "There were #{success} successful address matches and #{failure} failed address matches and #{case_matches} cases matched"      
-  end
+  # desc "Correlate demolitions data with addresses"  
+  # task :match => :environment  do |t, args|
+  #   # go through each foreclosure
+  #   success = 0
+  #   failure = 0
+  #   case_matches = 0
+  #   Demolition.where('address_id is null').each do |demolition|
+  #     if Address.match_abatement(demolition)
+  #       case_matches += 1 if Case.match_abatement(demolition)
+  #       success +=1
+  #     else
+  #       puts "#{demolition.address_long} address not found in address table"
+  #       failure += 1
+  #     end
+  #   end
+  #   puts "There were #{success} successful address matches and #{failure} failed address matches and #{case_matches} cases matched"      
+  # end
 
   desc "Correlate demolition data with cases"  
   task :match_case => :environment  do |t, args|

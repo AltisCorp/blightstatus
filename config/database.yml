@@ -1,5 +1,6 @@
 development: &DEVELOPMENT
   adapter:  postgis
+  postgis_extension: true
   encoding: unicode
   database: openblight_dev
   username: postgres

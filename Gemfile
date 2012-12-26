@@ -1,24 +1,28 @@
 source 'https://rubygems.org'
-ruby '1.9.3', engine: 'jruby', engine_version: '1.7.0'
 
 gem 'rails', '3.2.9'
+gem 'bundler', '~>1.2' 
 
 
-# ENABLE WHEN USING JRUBY - DISABLE BELOW
-gem 'jdbc-postgres'
-gem 'activerecord-postgis-adapter'
-gem 'activerecord-jdbc-adapter'
-gem 'activerecord-jdbcpostgresql-adapter'
-gem 'puma'
+platforms :jruby do
+  ruby '1.9.3', engine: 'jruby', engine_version: '1.7.0'
+  gem 'jruby-openssl'
+  gem 'activerecord-jdbcpostgresql-adapter'
+  gem 'activerecord-postgis-adapter'
+  gem 'puma'
+end
 
-# ENABLE WHEN USING MRI RUBY - DISABLE ABOVE
-# gem 'pg' 
-# gem 'activerecord-postgis-adapter'
-# gem 'thin'
+
+platforms :ruby do
+  ruby '1.9.3'
+  gem 'pg' 
+  gem 'activerecord-postgis-adapter'
+  gem 'thin'
+end
+
 
 
 # Storage
-
 gem 'foreigner'
 gem 'aws-s3'
 gem 'roo' #excel parser

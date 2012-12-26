@@ -1,4 +1,4 @@
-Openblight::Application.routes.draw do
+Blightstatus::Application.routes.draw do
 
   devise_for :admins
   devise_for :accounts

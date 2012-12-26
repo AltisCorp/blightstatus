@@ -1,12 +1,24 @@
 source 'https://rubygems.org'
+ruby '1.9.3', engine: 'jruby', engine_version: '1.7.0'
 
 gem 'rails', '3.2.9'
 
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+
+# ENABLE WHEN USING JRUBY - DISABLE BELOW
+gem 'jdbc-postgres'
+gem 'activerecord-postgis-adapter'
+gem 'activerecord-jdbc-adapter'
+gem 'activerecord-jdbcpostgresql-adapter'
+gem 'puma'
+
+# ENABLE WHEN USING MRI RUBY - DISABLE ABOVE
+# gem 'pg' 
+# gem 'activerecord-postgis-adapter'
+# gem 'thin'
+
 
 # Storage
-gem 'pg'
+
 gem 'foreigner'
 gem 'aws-s3'
 gem 'roo' #excel parser
@@ -25,7 +37,6 @@ gem 'delayed_job_active_record'
 # GIS 
 gem 'rgeo'
 gem 'rgeo-geojson'
-gem 'activerecord-postgis-adapter'
 gem 'rgeo-shapefile'
 
 # Templates
@@ -34,11 +45,10 @@ gem 'jquery-rails'
 gem 'rails3-jquery-autocomplete'
 gem 'kaminari'
 
-gem 'thin'
 
 gem 'newrelic_rpm', '3.5.3.25'
 
-gem 'debugger', '1.2.2'
+# gem 'debugger', '1.2.2'
 
 # Gems used only for assets and not required
 # in production environments by default.

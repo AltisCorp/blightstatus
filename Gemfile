@@ -37,7 +37,7 @@ gem 'kaminari'
 
 gem 'thin'
 
-gem 'newrelic_rpm'
+gem 'newrelic_rpm', '3.5.3.25'
 
 gem 'debugger', '1.2.2'
 
@@ -70,9 +70,11 @@ group :test, :development do
   gem 'simplecov'
 end
 
-group :development do
-  gem 'awesome_print'
-end
+# group :development do
+#   gem 'awesome_print'
+#   gem "better_errors"
+#   gem "binding_of_caller"
+# end
 
 group :test do
   gem 'rake'

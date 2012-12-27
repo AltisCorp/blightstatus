@@ -26,9 +26,12 @@ class Case < ActiveRecord::Base
     ordered_events.each do |event|
       events_hash[event.step.to_sym] = [] unless events_hash[event.step.to_sym]
       events_hash[event.step.to_sym] << event
-
     end
     events_hash
+  end
+
+  def is_enviromental_hazard?
+    !self.case_number.match('ENVHADJ').blank?
   end
 
   def events_cleansed

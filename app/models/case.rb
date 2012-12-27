@@ -34,19 +34,29 @@ class Case < ActiveRecord::Base
     !self.case_number.match('ENVHADJ').blank?
   end
 
+  # def events_cleansed
+  #   steps = ordered_events
+  #   reset = reset_step
+  #   reset_found = false
+  #   if reset
+  #     detail = []
+  #     steps = steps.reverse
+  #     steps.each do |last|
+  #       reset_found = true if last == reset
+  #       next if reset_found && last.step != 'Inspection'
+  #       detail.insert(0, last)
+  #     end
+  #     steps = detail
+  #   end
+  #   steps
+  # end
+
   def events_cleansed
     steps = ordered_events
     reset = reset_step
     reset_found = false
     if reset
-      detail = []
-      steps = steps.reverse
-      steps.each do |last|
-        reset_found = true if last == reset
-        next if reset_found && last.step != 'Inspection'
-        detail.insert(0, last)
-      end
-      steps = detail
+      steps = steps.select{|step| step.date > reset_step.date.end_of_day || (step.date < reset_step.date.end_of_day && step.step == 'Inspection')}
     end
     steps
   end

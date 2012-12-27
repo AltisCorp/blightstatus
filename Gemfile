@@ -1,12 +1,28 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.9'
+gem 'bundler', '~>1.2' 
 
-# Bundle edge Rails instead:
-# gem 'rails', :git => 'git://github.com/rails/rails.git'
+
+platforms :jruby do
+  ruby '1.9.3', engine: 'jruby', engine_version: '1.7.0'
+  gem 'jruby-openssl'
+  gem 'activerecord-jdbcpostgresql-adapter'
+  gem 'activerecord-postgis-adapter'
+  gem 'puma'
+end
+
+
+platforms :ruby do
+  ruby '1.9.3'
+  gem 'pg' 
+  gem 'activerecord-postgis-adapter'
+  gem 'thin'
+end
+
+
 
 # Storage
-gem 'pg'
 gem 'foreigner'
 gem 'aws-s3'
 gem 'roo' #excel parser
@@ -15,9 +31,13 @@ gem 'rubyXL'
 gem 'devise'
 gem 'devise-async'
 
-gem 'lama', :git => 'https://github.com/gangleton/lama.git'
+
+# Network
 gem 'savon'
 gem 'httpclient', "~> 2.3.0"
+gem 'lama', :git => 'https://github.com/gangleton/lama.git'
+gem 'redirect_follower'
+gem "rest-client", :git => 'git://github.com/rest-client/rest-client.git'
 # gem 'mechanize'
 
 gem 'delayed_job_active_record'
@@ -26,7 +46,6 @@ gem 'json-schema'
 # GIS 
 gem 'rgeo'
 gem 'rgeo-geojson'
-gem 'activerecord-postgis-adapter'
 gem 'rgeo-shapefile'
 
 # Templates
@@ -35,11 +54,10 @@ gem 'jquery-rails'
 gem 'rails3-jquery-autocomplete'
 gem 'kaminari'
 
-gem 'thin'
 
 gem 'newrelic_rpm', '3.5.3.25'
 
-gem 'debugger', '1.2.2'
+# gem 'debugger', '1.2.2'
 
 gem 'activerecord-postgres-hstore', git: 'git://github.com/engageis/activerecord-postgres-hstore.git'
 

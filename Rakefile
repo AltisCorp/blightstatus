@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-Openblight::Application.load_tasks
+Blightstatus::Application.load_tasks

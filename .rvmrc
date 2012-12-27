@@ -1,1 +1,2 @@
-rvm gemset use openblight
+rvm gemset use blightstatus
+

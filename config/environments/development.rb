@@ -1,4 +1,4 @@
-Openblight::Application.configure do
+Blightstatus::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   # In the development environment your application's code is reloaded on
@@ -30,7 +30,10 @@ Openblight::Application.configure do
 
   # Log the query plan for queries taking more than this (works
   # with SQLite, MySQL, and PostgreSQL)
-  config.active_record.auto_explain_threshold_in_seconds = 0.5
+  
+  # Eddie: this does not work with the JDBC adapter.
+  # Fix is coming in rails 4. https://github.com/rails/rails/pull/6197
+  config.active_record.auto_explain_threshold_in_seconds = nil
 
   # Do not compress assets
   config.assets.compress = false

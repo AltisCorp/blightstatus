@@ -1,7 +1,8 @@
 development: &DEVELOPMENT
   adapter:  postgis
+  # postgis_extension: true
   encoding: unicode
-  database: openblight_be
+  database: blightstatus_dev
   username: postgres
   template: template_postgis
   pool: 5
@@ -11,7 +12,7 @@ development: &DEVELOPMENT
 # Do not set this db to the same as development or production.
 test:
   <<: *DEVELOPMENT
-  database: openblight_test
+  database: blightstatus_test
 
 production:
   <<: *DEVELOPMENT

@@ -9,6 +9,7 @@
 
 #Ignore application config
 config/initializers/nola_keys.rb
+/o-ri
 
 # Ignore the default SQLite database.
 /db/*.sqlite3

@@ -8,6 +8,14 @@ GIT
       rake
 
 GIT
+  remote: git://github.com/rest-client/rest-client.git
+  revision: 3a5e64eb7c78e21e2ef3e44beeb7a6c8550e1556
+  specs:
+    rest-client (1.6.7)
+      mime-types (>= 1.16)
+      netrc (~> 0.7.7)
+
+GIT
   remote: https://github.com/gangleton/lama.git
   revision: 2fdbc2ab67fed340bb334e21ec81772ee184a806
   specs:
@@ -89,13 +97,6 @@ GEM
     daemons (1.1.9)
     dbf (2.0.3)
       fastercsv (~> 1.5.4)
-    debugger (1.2.2)
-      columnize (>= 0.3.1)
-      debugger-linecache (~> 1.1.1)
-      debugger-ruby_core_source (~> 1.1.5)
-    debugger-linecache (1.1.2)
-      debugger-ruby_core_source (>= 1.1.1)
-    debugger-ruby_core_source (1.1.6)
     delayed_job (3.0.4)
       activesupport (~> 3.0)
     delayed_job_active_record (0.3.3)
@@ -151,7 +152,7 @@ GEM
     jquery-rails (2.1.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
-    jruby-openssl (0.7.7)
+    jruby-openssl (0.8.2)
       bouncy-castle-java (>= 1.5.0146.1)
     json (1.7.5)
     json (1.7.5-java)
@@ -176,10 +177,10 @@ GEM
     multi_json (1.5.0)
     multi_xml (0.5.1)
     multipart-post (1.1.5)
+    netrc (0.7.7)
     newrelic_rpm (3.5.3.25)
-    nokogiri (1.5.5)
-    nokogiri (1.5.5-java)
     nokogiri (1.5.6)
+    nokogiri (1.5.6-java)
     nori (2.0.0)
     oauth (0.4.7)
     oauth2 (0.8.0)
@@ -222,6 +223,7 @@ GEM
       hashie (~> 1.2.0)
     rdoc (3.12)
       json (~> 1.4)
+    redirect_follower (0.1.1)
     rgeo (0.3.20)
     rgeo-activerecord (0.4.6)
       activerecord (>= 3.0.3)
@@ -347,6 +349,8 @@ DEPENDENCIES
   rails (= 3.2.9)
   rails3-jquery-autocomplete
   rake
+  redirect_follower
+  rest-client!
   rgeo
   rgeo-geojson
   rgeo-shapefile

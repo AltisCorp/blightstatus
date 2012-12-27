@@ -31,9 +31,13 @@ gem 'rubyXL'
 gem 'devise'
 gem 'devise-async'
 
-gem 'lama', :git => 'https://github.com/gangleton/lama.git'
+
+# Network
 gem 'savon'
 gem 'httpclient', "~> 2.3.0"
+gem 'lama', :git => 'https://github.com/gangleton/lama.git'
+gem 'redirect_follower'
+gem "rest-client", :git => 'git://github.com/rest-client/rest-client.git'
 # gem 'mechanize'
 
 gem 'delayed_job_active_record'

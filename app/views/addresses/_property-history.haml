@@ -15,7 +15,7 @@
             %td
               %table.table-nolines
                 %tr
-                  %td.date=step.inspection_date.strftime("%-m/%-d/%y")
+                  %td.date=event.date.strftime("%-m/%-d/%y")
                   %td 
                     Property was inspected
         -when 'Judgment'
@@ -85,12 +85,12 @@
           -case event.step
           -when 'Inspection'
             %tr{:class => "case-history-inspection case-history-inspection-#{kase.case_number}"}
-            -if kase.events_by_step(:Judgment) && event.date > kase.events_by_step(:Judgment).last.date && event == kase.events_by_step(:Inspection).last
+            -if event == kase.events_by_step(:Inspection).last && kase.events_by_step(:Judgment) && event.date > kase.events_by_step(:Judgment).last.date
               %td 
                 %span.arrow            
               %td.status 
                 %span
-                  Judgment Posted
+                  Posting of Judgment
               %td
                 %table.table-nolines
                   %tr
@@ -117,8 +117,6 @@
                           -event.dhash[:findings].each_with_index do |violation, index|
                             %p  
                               #{index+1}) #{violation[1].gsub('HCEV', '')}
-          
-
 
           -when 'Notification'
             %tr{:class => "case-history-#{event.step.downcase} case-history-#{event.step.downcase}-#{kase.case_number}"}

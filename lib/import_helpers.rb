@@ -63,25 +63,31 @@ module ImportHelpers
   end
 
   # unzip files
-  def get_geojson_from_shapefile_zip ( remote_shapefile )
+  def get_geojson_from_shapefile( shapefile )
 
-    local_cache_address_file = "#{Rails.root}" + '/tmp/cache/NOLA_Addresses_20121214.zip'
+
+    filename = File.basename(shapefile)
+
+    shapefile_cache = "#{Rails.root}" + '/tmp/cache/' + "#{filename}"
 
     p "Downloading Shapefile...."
-    # File.open(local_cache_address_file, "wb") do |saved_file|
-    #   open(remote_shapefile, 'rb') do |read_download_file|
-    #     saved_file.write(read_download_file.read)
-    #   end
-    # end
+    File.open(shapefile_cache, "wb") do |saved_file|
+      open(shapefile, 'rb') do |downloaded_content|
+        saved_file.write(downloaded_content.read)
+      end
+    end
     p "Complete"
 
 
     #post the zip shape file to get geojson
     p "Converting Shapefile to GeoJSON..."
-    response = RestClient.post 'http://0.0.0.0:5000/', :file => File.new(local_cache_address_file, 'rb')
-    p "Complete"
+    response = RestClient.post 'http://conv.sfgeo.org/_shp2json', :from_shapefile_gj => File.new(shapefile_cache, 'rb'){|response, request, result| 
+      p response.inspect
+    }
 
-    JSON.parse(response.body)
+    p "Complete"
+    p response.inspect
+    # JSON.parse(response.body)
 
 
   end

@@ -5,22 +5,15 @@ require 'rest_client'
 
 
 namespace :addresses do
-  desc "Load data.nola.gov addresses into database"
-  task :update, [:remote_shapefile] => :environment  do |t, args|
-    args.with_defaults(:address_file_name => "NOLA_Addresses_20121214.zip", :districts_file_name => "NOLA_Addresses_20121214.zip")  
-
-    #download zip file
-    # remote_shapefile = "https://data.nola.gov/api/file_data/Gn9aLqlGx_9jR-DzakSNiXu3Y5iO1YvL5O8XPgIj6no?filename=NOLA_Addresses_20121214.zip"
-
-    address_list = get_geojson_from_shapefile_zip(remote_shapefile)
-
-
+  desc "Load addresses into database"
+  task :load, [:shapefile] => :environment  do |t, args|
+    args.with_defaults(:shapefile => "neworleansdata")  
+    puts args.shapefile
+    address_list = get_geojson_from_shapefile(args.shapefile)
     p "File contains #{p address_list['features'].count} records"
 
 
     new_addresses_count = addresses_count = 0
-
-
     address_list['features'].each do |n|
       record = n['properties']
       # p record.inspect
@@ -39,7 +32,6 @@ namespace :addresses do
 
     p "Total addresses updated #{addresses_count}"
     p "Total new addresses #{new_addresses_count}"
-
   end
 
   desc "Empty address table"  

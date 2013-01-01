@@ -81,8 +81,8 @@ module ImportHelpers
 
     #post the zip shape file to get geojson
     p "Converting Shapefile to GeoJSON..."
-    response = RestClient.post 'http://conv.sfgeo.org/_shp2json', :from_shapefile_gj => File.new(shapefile_cache, 'rb'){|response, request, result| 
-      p response.inspect
+    response = RestClient.post 'http://shp2geojson.herokuapp.com/', :file => File.new(shapefile_cache, 'rb'){|response, request, result| 
+      p response.length
     }
 
     p "Complete"

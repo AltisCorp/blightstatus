@@ -26,7 +26,7 @@ namespace :addresses do
         else
           p "creating new address id #{record["ADDRESS_ID"]}"
           addr = Address.create(:point => n['geometry'], :official => true, :address_id => record["ADDRESS_ID"], :street_full_name => record["ADDRESS_LA"].sub(/^\d+\s/, ''), :address_long => record["ADDRESS_LA"], :geopin => record["GEOPIN"], :house_num => record["HOUSE_NUMB"], :parcel_id => record["PARCEL_ID"], :status => record["STATUS"], :street_id => record["STREET_ID"], :street_name => record["STREET"], :street_type => record["TYPE"], :x => record["X"], :y => record["Y"] )
-          new_addresses_count = new_addresses + 1;
+          new_addresses_count = new_addresses_count + 1;
         end
         addr.save
       end

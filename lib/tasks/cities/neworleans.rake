@@ -1,13 +1,11 @@
 namespace :neworleans do
-
-
   desc "New Orleans: load addresses"
   task :geodata do
 
     # load addresses
     shapefile = 'https://data.nola.gov/api/file_data/Gn9aLqlGx_9jR-DzakSNiXu3Y5iO1YvL5O8XPgIj6no?filename=NOLA_Addresses_20121214.zip'
     # shapefile = '/Users/eddie/Desktop/grp36005.zip'
-    put shapefile
+    puts shapefile
     Rake::Task["addresses:load[#{shapefile}]"].invoke
 
     # load neighborhoods
@@ -33,6 +31,6 @@ namespace :neworleans do
 
   end
 
-
-
 end
+
+

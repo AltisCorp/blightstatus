@@ -12,26 +12,28 @@ namespace :addresses do
     address_list = get_geojson_from_shapefile(args.shapefile)
     p "File contains #{p address_list['features'].count} records"
 
-
     new_addresses_count = addresses_count = 0
-    address_list['features'].each do |n|
-      record = n['properties']
-      # p record.inspect
-      addr = nil
-      if addr = Address.where("address_id = ?", record["ADDRESS_ID"]).first
-        result = addr.update_attributes(:point => n['geometry'], :official => true, :address_id => record["ADDRESS_ID"], :street_full_name => record["ADDRESS_LA"].sub(/^\d+\s/, ''), :address_long => record["ADDRESS_LA"], :geopin => record["GEOPIN"], :house_num => record["HOUSE_NUMB"], :parcel_id => record["PARCEL_ID"], :status => record["STATUS"], :street_id => record["STREET_ID"], :street_name => record["STREET"], :street_type => record["TYPE"], :x => record["X"], :y => record["Y"] )
-        p "updating address id #{record["ADDRESS_ID"]} #{result.inspect}"
-        addresses_count = addresses_count + 1;
-      else
-        p "creating new address id #{record["ADDRESS_ID"]}"
-        addr = Address.create(:point => n['geometry'], :official => true, :address_id => record["ADDRESS_ID"], :street_full_name => record["ADDRESS_LA"].sub(/^\d+\s/, ''), :address_long => record["ADDRESS_LA"], :geopin => record["GEOPIN"], :house_num => record["HOUSE_NUMB"], :parcel_id => record["PARCEL_ID"], :status => record["STATUS"], :street_id => record["STREET_ID"], :street_name => record["STREET"], :street_type => record["TYPE"], :x => record["X"], :y => record["Y"] )
-        new_addresses_count = new_addresses + 1;
-      end
-      addr.save
-    end
 
-    p "Total addresses updated #{addresses_count}"
-    p "Total new addresses #{new_addresses_count}"
+    unless address_list['features'].empty?
+      address_list['features'].each do |n|
+        record = n['properties']
+        # p record.inspect
+        addr = nil
+        if addr = Address.where("address_id = ?", record["ADDRESS_ID"]).first
+          result = addr.update_attributes(:point => n['geometry'], :official => true, :address_id => record["ADDRESS_ID"], :street_full_name => record["ADDRESS_LA"].sub(/^\d+\s/, ''), :address_long => record["ADDRESS_LA"], :geopin => record["GEOPIN"], :house_num => record["HOUSE_NUMB"], :parcel_id => record["PARCEL_ID"], :status => record["STATUS"], :street_id => record["STREET_ID"], :street_name => record["STREET"], :street_type => record["TYPE"], :x => record["X"], :y => record["Y"] )
+          p "updating address id #{record["ADDRESS_ID"]} #{result.inspect}"
+          addresses_count = addresses_count + 1;
+        else
+          p "creating new address id #{record["ADDRESS_ID"]}"
+          addr = Address.create(:point => n['geometry'], :official => true, :address_id => record["ADDRESS_ID"], :street_full_name => record["ADDRESS_LA"].sub(/^\d+\s/, ''), :address_long => record["ADDRESS_LA"], :geopin => record["GEOPIN"], :house_num => record["HOUSE_NUMB"], :parcel_id => record["PARCEL_ID"], :status => record["STATUS"], :street_id => record["STREET_ID"], :street_name => record["STREET"], :street_type => record["TYPE"], :x => record["X"], :y => record["Y"] )
+          new_addresses_count = new_addresses + 1;
+        end
+        addr.save
+      end
+
+      p "Total addresses updated #{addresses_count}"
+      p "Total new addresses #{new_addresses_count}"
+    end
   end
 
   desc "Empty address table"  

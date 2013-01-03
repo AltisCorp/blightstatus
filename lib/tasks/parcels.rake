@@ -1,24 +1,21 @@
-require 'rgeo/shapefile'
-
-# TODO NEEDS TESTING
-
 namespace :parcels do
-  desc "Load parcel from data.nola.gov addresses into database"
-  task :load => :environment do
-    shpfile = "#{Rails.root}/lib/assets/NOLA_Streets_20120405/.shp"
 
+  desc "Load addresses into database"
+  task :load, [:shapefile] => :environment  do |t, args|
+    puts args.shapefile
+    parcels = get_geojson_from_shapefile(args.shapefile)
+    p "File contains #{p parcels['features'].count} records"
 
-    RGeo::Shapefile::Reader.open(shpfile, {:srid => -1}) do |file|
-      puts "File contains #{file.num_records} records"
-      nums = 1..5
-      nums.each do |n|
-         record = file.get(n).attributes
-         puts record
-         puts file.get(n).geometry
-         #st = Street.create( :prefix_direction => record["PREFIX_DIR"], :prefix_type => record["PREFIX_TYP"], :name => record["ST_NAME"], :suffix_direction => record["SUFFIX_DIR"], :suffix_type => record["SUFFIX_TYP"], :full_name => record["NAME"], :shape_len => record["SHAPE_LEN"], :the_geom => file.get(n).geometry)
-         #st.save
+    new_addresses_count = addresses_count = 0
+
+    unless parcels['features'].empty?
+      parcels['features'].each do |n|
+        record = n['properties']
+        geometry = n['geometry']
+        st = Street.create( :prefix_direction => record["PREFIX_DIR"], :prefix_type => record["PREFIX_TYP"], :name => record["ST_NAME"], :suffix_direction => record["SUFFIX_DIR"], :suffix_type => record["SUFFIX_TYP"], :full_name => record["NAME"], :shape_len => record["SHAPE_LEN"], :the_geom => geometry)
+        st.save
       end
     end
-    
   end
+
 end

@@ -3,11 +3,18 @@ namespace :neworleans do
   task :geodata do
 
     # load addresses
-    shapefile = 'https://data.nola.gov/api/file_data/Gn9aLqlGx_9jR-DzakSNiXu3Y5iO1YvL5O8XPgIj6no?filename=NOLA_Addresses_20121214.zip'
-    # Rake::Task["addresses:load[#{shapefile}]"].invoke
-    Rake::Task['addresses:load'].invoke(shapefile)
+    # shapefile = 'https://data.nola.gov/download/div8-5v7i/application/zip'
+    # Rake::Task['addresses:load'].invoke(shapefile)
+
 
     # load neighborhoods
+    # shapefile = 'https://data.nola.gov/download/xy5r-5rjk/application/zip'
+    # Rake::Task['neighborhoods:load'].invoke(shapefile)
+
+
+    # load parcels
+    shapefile = 'https://data.nola.gov/download/xy5r-5rjk/application/zip'
+    Rake::Task['parcels:load'].invoke(shapefile)
 
 
     # load streets lines

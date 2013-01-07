@@ -165,4 +165,8 @@ class Address < ActiveRecord::Base
   def most_relevant_case
     cases.select{|kase| kase.state == 'Open'}.first || sorted_cases.last
   end
+
+  def load_open_cases
+    self.cases.select{|kase| kase.state.downcase =~ /open/}.each{|kase| kase.load_case}
+  end
 end

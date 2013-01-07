@@ -31,25 +31,9 @@ class Case < ActiveRecord::Base
   end
 
   def is_enviromental_hazard?
-    !self.case_number.match('ENVHADJ').blank?
+    self.case_number =~ /ENVHADJ/
+    # !self.case_number.match('ENVHADJ').blank?
   end
-
-  # def events_cleansed
-  #   steps = ordered_events
-  #   reset = reset_step
-  #   reset_found = false
-  #   if reset
-  #     detail = []
-  #     steps = steps.reverse
-  #     steps.each do |last|
-  #       reset_found = true if last == reset
-  #       next if reset_found && last.step != 'Inspection'
-  #       detail.insert(0, last)
-  #     end
-  #     steps = detail
-  #   end
-  #   steps
-  # end
 
   def events_cleansed
     steps = ordered_events
@@ -130,5 +114,8 @@ end
     false
   end
 
+  def load_case
+    LAMAHelpers.load_case(self.case_number)
+  end
 
 end

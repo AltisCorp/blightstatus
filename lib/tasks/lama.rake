@@ -49,7 +49,7 @@ namespace :lama do
 
   desc "Send notifications for new events"
   task :send_notifications => :environment do |t, args|
-    Account.all.each(&:send_digest)
+    Account.includes(:subscriptions).where("subscriptions.account_id is not null").each(&:send_digest)
   end
 
   desc "Import LAMA data from our Accela endpoint until current time"

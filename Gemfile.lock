@@ -327,8 +327,8 @@ DEPENDENCIES
   activerecord-postgres-hstore!
   aws-s3
   bundler (~> 1.2)
-  capybara
-  coffee-rails (~> 3.2.1)
+  capybara (~> 2.0)
+  coffee-rails (~> 3.2)
   delayed_job_active_record
   devise
   devise-async
@@ -337,16 +337,16 @@ DEPENDENCIES
   faker
   foreigner
   haml
-  httpclient (~> 2.3.0)
+  httpclient (~> 2.3)
   jquery-rails
   jruby-openssl
   json-schema
   kaminari
   lama!
-  newrelic_rpm (= 3.5.3.25)
+  newrelic_rpm (~> 3.5)
   pg
   puma
-  rails (= 3.2.9)
+  rails (~> 3.2)
   rails3-jquery-autocomplete
   rake
   redirect_follower
@@ -355,12 +355,12 @@ DEPENDENCIES
   rgeo-geojson
   rgeo-shapefile
   roo
-  rspec-rails (>= 2.9.0)
+  rspec-rails (~> 2.12)
   rubyXL
-  sass-rails (~> 3.2.3)
+  sass-rails (~> 3.2)
   savon
   shoulda
   simplecov
   test-unit
   thin
-  uglifier (>= 1.0.3)
+  uglifier (~> 1.3)

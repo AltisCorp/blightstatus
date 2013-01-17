@@ -1,3 +1,5 @@
+require 'net/http'
+require 'uri'
 require 'open-uri' 
 require 'aws/s3'
 require 'json'
@@ -63,24 +65,36 @@ module ImportHelpers
   end
 
   # unzip files
-  def get_geojson_from_shapefile_zip ( remote_shapefile )
-
-    local_cache_address_file = "#{Rails.root}" + '/tmp/cache/NOLA_Addresses_20121214.zip'
-
+  def get_geojson_from_shapefile( shapefile )
     p "Downloading Shapefile...."
-    # File.open(local_cache_address_file, "wb") do |saved_file|
-    #   open(remote_shapefile, 'rb') do |read_download_file|
-    #     saved_file.write(read_download_file.read)
-    #   end
-    # end
+    # shapefile_cache = '/Users/eddie/Sites/blightstatus/tmp/cache/NOLA_Addresses_20121214.zip'
+    shapefile_cache = ''
+    open(shapefile, 'rb') do |downloaded_content|
+      header = downloaded_content.meta['content-disposition']
+      # p header.inspect
+      filename = header.match(/filename=(\"?)(.+)\1/)[2]
+      shapefile_cache = "#{Rails.root}" + '/tmp/cache/' + "#{filename}"
+
+      File.open(shapefile_cache, "wb") do |saved_file|
+        saved_file.write(downloaded_content.read)
+      end
+    end
     p "Complete"
 
+    p "File is now saved as #{shapefile_cache}"
+
+
+    shp2geojson_url = 'http://shp2geojson.herokuapp.com/'
+    # shp2geojson_url = 'http://0.0.0.0:5000/'
 
     #post the zip shape file to get geojson
     p "Converting Shapefile to GeoJSON..."
-    response = RestClient.post 'http://0.0.0.0:5000/', :file => File.new(local_cache_address_file, 'rb')
-    p "Complete"
 
+    response = RestClient.post shp2geojson_url, :file => File.new(shapefile_cache, 'rb')
+
+
+    p "Complete"
+    # p response.inspect
     JSON.parse(response.body)
 
 

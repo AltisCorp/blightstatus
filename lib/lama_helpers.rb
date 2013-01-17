@@ -128,62 +128,50 @@ module LAMAHelpers
     #end
   end
 
-  # def validateSchedHearings(kase)
-  #   #is scheduled hearing valid?
-  #       schedHearings = Hearing.where("case_number = '#{kase.case_number}' and is_complete = false")
-  #       return if schedHearings.count == 0
-
-  #       h = kase.last_hearing
-  #       s = kase.last_status
-
-  #       if kase.judgement || (h && h.is_complete )|| (h && s && h != s)
-  #         schedHearings.destroy_all
-  #         return
-  #       end
-  # end
-
   def parseEvent(kase,event,spawn_hash)
     case_number = kase.case_number
+    date = DateTime.parse(event.DateEvent)
+    spawn = spawn_hash.delete(event.ID)
     if event.class == Hashie::Mash && event.IsComplete =~ /true/
       # j_status = nil
       if ((event.Type =~ /Notice/ || event.Name =~ /Notice/) && (event.Type =~ /Hearing/ || event.Name =~ /Hearing/)) || (event.Type == 'Notice' || event.Name == 'Notice')
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
-          kase.events.create(:name => event.Name, :step => 'Notification', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
-        else
-          kase.events.create(:name => event.Name, :step => 'Notification', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+          if spawn
+            kase.events.create(:name => event.Name, :step => 'Notification', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
+          else
+            kase.events.create(:name => event.Name, :step => 'Notification', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+          end
         end
       elsif event.Type =~ /Administrative Hearing/
-        j = extract_judgement(event.Status)
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
-          # unless Event.where("step = 'Hearing' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
-          spawn[:dhash][:status] = event.Status
-              kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :date => spawn[:date], :status => j, :dhash => spawn[:dhash])
-          # end
-        else
-          # unless Event.where("step = 'Hearing' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
-          dhash = {:status => event.Status}
-              kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :date => event.DateEvent, :status => j, :dhash => dhash)
-          # end
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+          j = extract_judgement(event.Status)
+          if spawn
+            spawn[:dhash][:status] = event.Status
+            kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :date => spawn[:date], :status => j, :dhash => spawn[:dhash])
+          else
+            dhash = {:status => event.Status}
+            kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :date => event.DateEvent, :status => j, :dhash => dhash)
+          end
         end
       elsif ((event.Type =~ /Notice/ || event.Name =~ /Notice/) && (event.Type =~ /Reset/ || event.Name =~ /Reset/))
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
-          kase.events.create(:name => event.Name, :step => 'Reset', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
-        else
-          kase.events.create(:name => event.Name, :step => 'Reset', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+          if spawn
+            kase.events.create(:name => event.Name, :step => 'Reset', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
+          else
+            kase.events.create(:name => event.Name, :step => 'Reset', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+          end
         end
       elsif event.Type =~ /Input Hearing Results/
        if event.Items != nil and event.IncidEventItem != nil
          event.IncidEventItem.each do |item|
            if item.class == Hashie::Mash
              if (item.Title =~ /Reset Notice/ || item.Title =~ /Reset Hearing/) && item.IsComplete == "true"
-              if spawn_hash[event.ID]
-                spawn = spawn_hash.delete(event.ID)
-                kase.events.create(:name => event.Name, :step => 'Reset',:case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
-              else
-                kase.events.create(:name => event.Name, :step => 'Reset',:case_number => kase.case_number, :date => item.DateCompleted, :status => event.Status)
+              unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+                if spawn
+                  kase.events.create(:name => event.Name, :step => 'Reset',:case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
+                else
+                  kase.events.create(:name => event.Name, :step => 'Reset',:case_number => kase.case_number, :date => item.DateCompleted, :status => event.Status)
+                end
               end
              end
            end
@@ -202,32 +190,29 @@ module LAMAHelpers
           #     kase.events.create(:name => 'Posting of Judgment', :step => 'Judgment', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
           #   end
           # else
-            if spawn_hash[event.ID]
-              spawn = spawn_hash.delete(event.ID)
+            if spawn
               kase.events.create(:name => 'Inspection', :step => 'Inspection', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
             else
-              puts "event is ==> #{event.inspect}"
               kase.events.create(:name => 'Inspection', :step => 'Inspection', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
             end
           # end
         end
       elsif event.Type =~ /Complaint Received/ || event.Name =~ /Complaint Received/
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
-          kase.events.create(:name => event.Name, :step => 'Intake', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
-        else
-          kase.events.create(:name => event.Name, :step => 'Intake', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+          if spawn
+            kase.events.create(:name => event.Name, :step => 'Intake', :case_number => kase.case_number, :date => spawn[:date], :status => event.Status, :dhash => spawn[:dhash])
+          else
+            kase.events.create(:name => event.Name, :step => 'Intake', :case_number => kase.case_number, :date => event.DateEvent, :status => event.Status)
+          end
         end
       elsif event.Type =~ /Research Property Record/
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
+        if spawn
           kase.events.create(:name => event.Name, :step => 'ResearchPropertyRecord', :date => spawn[:date], :status => event.Status, :case_number => kase.case_number, :dhash => spawn[:dhash])  
         else
           kase.events.create(:name => event.Name, :step => 'ResearchPropertyRecord', :date => event.DateEvent, :status => event.Status, :case_number => kase.case_number)  
         end
       elsif (event.Name =~ /Judgment/ && (event.Name =~ /Posting/ || event.Name =~ /Notice/ || event.Name =~ /Recordation/))
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
+        if spawn
           kase.events.create(:name => event.Name, :step => 'Judgment', :case_number => kase.case_number, :status => event.Status, :dhash => {:type => event.Type}, :date => spawn[:dhash])
         else
           kase.events.create(:name => event.Name, :step => 'Judgment', :case_number => kase.case_number, :status => event.Status, :dhash => {:type => event.Type}, :date => event.DateEvent)
@@ -277,13 +262,10 @@ module LAMAHelpers
       end
       
       if j_status
-        if spawn_hash[event.ID]
-          spawn = spawn_hash.delete(event.ID)
-          unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
+        unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{date.beginning_of_day.to_formatted_s(:db)}' and date <= '#{date.end_of_day.to_formatted_s(:db)}')").exists?
+          if spawn
             kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :dhash => spawn[:dhash], :status => j_status, :date => spawn[:date])
-          end
-        else
-          unless Event.where("name = '#{event.Name}' and case_number = '#{kase.case_number}' and (date >= '#{Date.parse(event.DateEvent).beginning_of_day.to_formatted_s(:db)}' and date <= '#{Date.parse(event.DateEvent).end_of_day.to_formatted_s(:db)}')").exists?
+          else
             kase.events.create(:name => event.Name, :step => 'Hearing', :case_number => kase.case_number, :dhash => {:notes => notes}, :status => j_status, :date => event.DateEvent)
           end
         end
@@ -293,10 +275,7 @@ module LAMAHelpers
       last_hearing = kase.events_by_step(:Hearing) ? kase.events_by_step(:Hearing).last : nil
       h_date = DateTime.parse(event.DateEvent)
       puts "h_date => #{h_date}"
-      # if kase.events_by_step(:Judgment).nil? && last_notification && h_date > last_notification.date && (last_hearing.nil? || ((last_hearing && h_date > last_hearing.date) && (last_notification.date > last_hearing.date)))
-        # puts "Hearing Scheduled"
         spawn_hash[rand(1000).to_s.to_sym] = {:name => event.Name, :step => 'Hearing',:case_number => kase.case_number, :date => event.DateEvent, :status => 'Scheduled', :dhash => {:hearing_type => event.Type, :is_complete => false}}
-      # end
     end
   end
 
@@ -468,45 +447,28 @@ module LAMAHelpers
     j
   end
 
-  # def validateSchedHearings(kase,unsaved)
-  #       last  = Event.where(:case_number => kase.case_number).last
-  #       unsaved.save if unsaved.date > last.date && kase.state == 'Open' && !kase.judgement
-        
-
-  #       schedHearings = Event.where(:case_number => kase.case_number, :case_number => kase.case_number, :status => 'Scheduled')
-  #       schedHearings.destroy_all if kase.isClosed || kase.judgement
-  # end
   def remainingSpawns(kase,spawn_hash)
     # puts "Remaining SpawnHash => #{spawn_hash.inspect}"
     spawn_hash.each do |spawn_id,spawn|
-      # puts "spawn => #{spawn.inspect}"
       spawn[:date] = Date.parse(spawn[:date]) if spawn[:date].is_a?(String)
-      # if spawn[:step] == 'Inspection' && (kase.events_by_step(:Judgment) || (kase.events_by_step(:Hearing) &&  kase.events_by_step(:Hearing).last.date < spawn[:date] && "Not Guilty|Closed" =~ /#{kase.events_by_step(:Hearing).last.status}/))
-      #   spawn[:step] = 'Judgment'
-      #   spawn[:name] = 'Posting of Judgment'
-      # end
-      if spawn[:step] == 'Hearing' && spawn[:status] == 'Scheduled'
-        last_notification = kase.events_by_step(:Notification) ? kase.events_by_step(:Notification).last : nil
-        last_hearing = kase.events_by_step(:Hearing) ? kase.events_by_step(:Hearing).last : nil
-        
-        h_date = spawn[:date]
-        
-        if h_date.is_a?(String)
-          h_date = DateTime.parse(h_date) 
-        elsif h_date.is_a?(Date)
-          h_date = h_date.to_datetime 
-        end
+
+      unless Event.where("step = '#{spawn[:step]}' AND name = '#{spawn[:name]}' AND case_number = '#{kase.case_number}' AND (date >= '#{spawn[:date].beginning_of_day.to_formatted_s(:db)}' AND date <= '#{spawn[:date].end_of_day.to_formatted_s(:db)}')").exists?
+        if spawn[:step] == 'Hearing' && spawn[:status] == 'Scheduled'
+          last_notification = kase.events_by_step(:Notification) ? kase.events_by_step(:Notification).last : nil
+          last_hearing = kase.events_by_step(:Hearing) ? kase.events_by_step(:Hearing).last : nil
           
-        # puts "last_hearing date ==> #{last_hearing.date}" if last_hearing
-        # puts "last_notification date ==> #{last_notification.date}" if last_notification
-        if kase.events_by_step(:Judgment).nil? && last_notification && h_date > last_notification.date && (last_hearing.nil? || ((last_hearing && h_date > last_hearing.date) && (last_notification.date > last_hearing.date)))         
-          # puts "Create a scheduled hearing"
-          unless Event.where("step = '#{spawn[:step]}' AND name = '#{spawn[:name]}' AND case_number = '#{kase.case_number}' AND (date >= '#{spawn[:date].beginning_of_day.to_formatted_s(:db)}' AND date <= '#{spawn[:date].end_of_day.to_formatted_s(:db)}')").exists?
+          h_date = spawn[:date]
+          
+          if h_date.is_a?(String)
+            h_date = DateTime.parse(h_date) 
+          elsif h_date.is_a?(Date)
+            h_date = h_date.to_datetime 
+          end
+            
+          if kase.events_by_step(:Judgment).nil? && last_notification && h_date > last_notification.date && (last_hearing.nil? || ((last_hearing && h_date > last_hearing.date) && (last_notification.date > last_hearing.date)))         
             kase.events.create(:step => spawn[:step], :name => spawn[:name], :case_number => kase.case_number, :dhash => spawn[:dhash], :date => spawn[:date], :status => spawn[:status])
-          end  
-        end
-      else
-        unless Event.where("step = '#{spawn[:step]}' AND name = '#{spawn[:name]}' AND case_number = '#{kase.case_number}' AND (date >= '#{spawn[:date].beginning_of_day.to_formatted_s(:db)}' AND date <= '#{spawn[:date].end_of_day.to_formatted_s(:db)}')").exists?
+          end
+        else
           kase.events.create(:step => spawn[:step], :name => spawn[:name], :case_number => kase.case_number, :dhash => spawn[:dhash], :date => spawn[:date], :status => spawn[:status])
         end
       end
@@ -522,13 +484,23 @@ module LAMAHelpers
       puts "destroying => #{case_number}"
       kase.events.destroy_all
       kase.destroy
-    end        
-    incident = client.incident(case_number)
-    if incident && incident.Type == 'Public Nuisance and Blight' 
-      import_incident_to_database(incident,client)
-      reloaded = true if Case.where(:case_number => case_number).any?
-    else
-      reloaded = false
     end
+    load_case(case_number, client)
+  end
+
+  def load_case(case_number, client=nil)
+    loaded = false
+    begin
+      client = LAMA.new({:login => ENV['LAMA_EMAIL'], :pass => ENV['LAMA_PASSWORD']}) unless client
+      incident = client.incident(case_number)
+      if incident && incident.Type == 'Public Nuisance and Blight' 
+        import_incident_to_database(incident,client)
+        loaded = Case.where(:case_number => case_number).any?
+      end
+    rescue StandardError => ex
+      puts "There was an error of type #{ex.class}, with a message of #{ex.message}"
+      puts "Backtrace => #{ex.backtrace}"
+    end
+    loaded
   end
 end

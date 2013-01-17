@@ -1,2 +1,7 @@
- defaults: &defaults
-    demo_page_id: 190349
+sites:
+	demo:
+		site_id: 1
+		url: http://demo.blightstatus.com
+	neworleans:
+		site_id: 2
+		url: http://blightstatus.nola.gov

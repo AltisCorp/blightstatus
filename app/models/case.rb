@@ -8,6 +8,7 @@ class Case < ActiveRecord::Base
   # after_initialize :filter_events
 
   belongs_to :address
+  belongs_to :city_workflow
   has_many :events, :foreign_key => :case_number, :primary_key => :case_number
 
   validates_presence_of :case_number

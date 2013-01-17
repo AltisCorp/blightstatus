@@ -60,7 +60,7 @@ gem 'newrelic_rpm', '3.5.3.25'
 # gem 'debugger', '1.2.2'
 
 gem 'activerecord-postgres-hstore', git: 'git://github.com/engageis/activerecord-postgres-hstore.git'
-
+#gem 'subdomain-fu', '1.0.0.beta2'
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

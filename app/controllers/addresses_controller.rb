@@ -19,7 +19,8 @@ class AddressesController < ApplicationController
       @account = current_account
       @account_subscribed = !@account.subscriptions.where(:address_id => params[:id]).empty?
     end
-    
+    puts "Request:"
+    puts request.subdomain.inspect
     @address = Address.find(params[:id])
     @address.load_open_cases
 

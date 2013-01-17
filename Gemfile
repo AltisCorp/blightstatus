@@ -30,7 +30,7 @@ gem 'docsplit'
 gem 'rubyXL'
 gem 'devise'
 gem 'devise-async'
-
+gem "friendly_id", "~> 4.0.9" # Note: You MUST use 4.0.9 or greater for Rails 3.2.10+
 
 # Network
 gem 'savon'

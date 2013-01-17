@@ -131,6 +131,7 @@ GEM
     ffi (1.2.0-java)
     foreigner (1.2.1)
       activerecord (>= 3.0.0)
+    friendly_id (4.0.9)
     google-spreadsheet-ruby (0.3.0)
       google_drive (>= 0.3.0)
     google_drive (0.3.2)
@@ -336,6 +337,7 @@ DEPENDENCIES
   factory_girl_rails
   faker
   foreigner
+  friendly_id (~> 4.0.9)
   haml
   httpclient (~> 2.3)
   jquery-rails

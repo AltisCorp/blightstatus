@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130118001759) do
+ActiveRecord::Schema.define(:version => 20130118012054) do
 
   create_table "addresses", :force => true do |t|
     t.integer  "geopin"
@@ -192,6 +192,7 @@ ActiveRecord::Schema.define(:version => 20130118001759) do
     t.datetime "created_at",                               :null => false
     t.datetime "updated_at",                               :null => false
     t.boolean  "send_notifications",     :default => true
+    t.string   "role"
   end
 
   add_index "users", ["email"], :name => "index_accounts_on_email", :unique => true

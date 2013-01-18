@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  ROLES = %w[root staff citizen banned]
   attr_accessible :email, :password, :password_confirmation, :remember_me, :send_notifications
 
   has_many :subscriptions

@@ -18,31 +18,31 @@
         -else
           %li.dropdown
             %a#drop1.dropdown-toggle{"data-toggle" => "dropdown", :href => "#", :role => "button"}
-              -if current_account
+              -if current_user
                 My Account
               -else
                 Log in
               %b
                 &nbsp;&nbsp;
             %ul.dropdown-menu.span3.row{"aria-labelledby" => "drop1", :role => "menu"}
-              -if account_signed_in?
+              -if user_signed_in?
                 .logged-in
-                  %li=link_to "My Watchlist", "/accounts"
-                  %li=link_to('Logout', destroy_account_session_path, :method => :get)
+                  %li=link_to "My Watchlist", "/users"
+                  %li=link_to('Logout', destroy_user_session_path, :method => :get)
               -else
                 .logged-out
                   %li.login-form
-                    =form_for :account, :as => :account, :url => session_path(:account) do |f|
+                    =form_for :user, :as => :user, :url => session_path(:user) do |f|
                       .error
                       = f.email_field :email, :placeholder => 'Enter your email address'
                       = f.password_field :password, :placeholder => 'Enter your password'
-                      = link_to "Forgot your password?", new_password_path(:account)
+                      = link_to "Forgot your password?", new_password_path(:user)
                       = f.check_box :remember_me
                       = f.label :remember_me
                       = f.submit "Log in", :class => "btn btn-primary"
                   %li.sign-up
                     Don't have an account yet?
-                    =link_to "Sign Up", "/accounts/sign_up"
+                    =link_to "Sign Up", "/users/sign_up"
                   .clearfix
       %ul.nav.top-links
         %li

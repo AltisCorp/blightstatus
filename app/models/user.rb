@@ -1,4 +1,4 @@
-class Account < ActiveRecord::Base
+class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me, :send_notifications
 
   has_many :subscriptions

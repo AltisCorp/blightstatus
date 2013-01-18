@@ -1,9 +1,9 @@
 class SubscriptionsController < ApplicationController
   respond_to :html, :json
-  # before_filter :authenticate_account!
+  # before_filter :authenticate_user!
 
   def update
-    account = current_account
+    user = current_user
     # points = Array.new
     # factory = RGeo::Cartesian.factory
 
@@ -14,7 +14,7 @@ class SubscriptionsController < ApplicationController
 
     # polygon = factory.polygon(factory.linear_ring(points))
 
-    @subscription = Subscription.find_or_create_by_address_id_and_account_id({:address_id => params[:id], :account_id => account.id, :date_notified => Time.now })
+    @subscription = Subscription.find_or_create_by_address_id_and_user_id({:address_id => params[:id], :user_id => user.id, :date_notified => Time.now })
 
 
     if @subscription.save
@@ -27,9 +27,9 @@ class SubscriptionsController < ApplicationController
 
 
   def destroy
-    account = current_account
+    user = current_user
 
-    @subscription = Subscription.destroy_all({:address_id => params[:id], :account_id => account.id})
+    @subscription = Subscription.destroy_all({:address_id => params[:id], :user_id => user.id})
 
     if @subscription
       respond_to do |format|

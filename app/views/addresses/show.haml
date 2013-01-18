@@ -6,8 +6,8 @@
         .address-title{:class => "pull-left"}
           %h1=@address.address_long
         .subscribe{:class => "pull-left", :style => "margin-left: 20px;padding: 5px"}
-          -if(account_signed_in?)
-            -if(@account_subscribed)
+          -if(user_signed_in?)
+            -if(@user_subscribed)
               =link_to('Watching', "/subscriptions/#{@address.id}", :remote => true, :method => :delete, 'data-type' => 'json', :class => 'btn btn-primary btn-tight subscribe-button tooltip-hover' , :id => "subscribe-button", "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-title"=>"Stop Receiving notifications when the status of this property changes")
             -else
               =link_to("/subscriptions/#{@address.id}", :remote => true, :method => :put,  'data-type' => 'json', :class => 'btn btn-primary btn-tight subscribe-button tooltip-hover'  , :id => "subscribe-button", "data-animation" => "true", :trigger => "hover", :delay => 100, "data-placement"=>"bottom", :rel=>"tooltip", "data-title"=>"Receive notifications when the status of this property changes") do
@@ -28,9 +28,9 @@
                 %br
                 .register-or-login{:style => "margin: 0 auto; text-align: center"}
                   %h3
-                    %a.btn.btn-primary.btn-large{:href => "/accounts/sign_up"} Sign up
+                    %a.btn.btn-primary.btn-large{:href => "/users/sign_up"} Sign up
                     OR 
-                    %a.btn.btn-primary.btn-large{:href => "/accounts/sign_in"} Log in
+                    %a.btn.btn-primary.btn-large{:href => "/users/sign_in"} Log in
                 / %h2
                 /   Not sure yet? 
                 /   =link_to Take a Tour >

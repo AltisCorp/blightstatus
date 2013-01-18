@@ -1,7 +1,7 @@
 Blightstatus::Application.routes.draw do
 
   devise_for :admins
-  devise_for :accounts
+  devise_for :users
 
   resources :subscriptions
   resources :pages
@@ -32,7 +32,7 @@ Blightstatus::Application.routes.draw do
   # match "health/cases/orphans" => "health#cases_orphan"
   # match "health/cases/missing" => "health#cases_missing"
 
-  resources :accounts, :except => [:destroy, :create, :edit] do
+  resources :users, :except => [:destroy, :create, :edit] do
     collection do
       get :map
       post :notify
@@ -53,6 +53,8 @@ Blightstatus::Application.routes.draw do
   
   resources :cases, :except => [:destroy, :create, :edit]
 
+
+  match "/accounts" => redirect("/users")
 
   # match "cases/:case_type" => "cases#index", :as => "case"   
   # match "pages/:id" => "pages#show", :as => "page" 

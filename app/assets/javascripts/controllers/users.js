@@ -1,24 +1,24 @@
-OpenBlight.accounts = {
+OpenBlight.users = {
   init: function(){
-    OpenBlight.accounts.layergroup = {};
-    OpenBlight.accounts.map = {};
-    OpenBlight.accounts.markers = [];
+    OpenBlight.users.layergroup = {};
+    OpenBlight.users.map = {};
+    OpenBlight.users.markers = [];
   },
 
   /**
    * Controller methods
    */
   index: function(){
-    OpenBlight.accounts.account_page = true;
-    OpenBlight.accounts.subscriptionButton()
-    OpenBlight.accounts.createAccountsMap();
-    OpenBlight.accounts.bindDeliveryToggle();
-    OpenBlight.accounts.showAccountGuide();
+    OpenBlight.users.user_page = true;
+    OpenBlight.users.subscriptionButton()
+    OpenBlight.users.createUsersMap();
+    OpenBlight.users.bindDeliveryToggle();
+    OpenBlight.users.showUserGuide();
 
   },
 
   map: function(){
-    OpenBlight.accounts.createSubscriptionMap();
+    OpenBlight.users.createSubscriptionMap();
   },
 
   /**
@@ -26,9 +26,9 @@ OpenBlight.accounts = {
    */
 
   bindDeliveryToggle: function(){
-    $("input#account_send_notifications").click(function(e){
+    $("input#user_send_notifications").click(function(e){
       data = $(this).parent('form').serialize();
-      $.post("/accounts/notify", data, function(data){
+      $.post("/users/notify", data, function(data){
         if(data.saved == false){
           //do something if it fails
         }
@@ -36,7 +36,7 @@ OpenBlight.accounts = {
     });
   },
 
-  showAccountGuide: function(){
+  showUserGuide: function(){
 
     if($('#no-subscriptions-found').length){
 
@@ -61,7 +61,7 @@ OpenBlight.accounts = {
        function(evt, data, status, xhr){
 
         if($(this).data('method') == 'delete'){
-          if(OpenBlight.accounts.account_page){
+          if(OpenBlight.users.user_page){
             $(this).parentsUntil('.subscription').parent().fadeOut('slow');
             $(this).parentsUntil('.subscription').parent().remove();
           }
@@ -75,7 +75,7 @@ OpenBlight.accounts = {
           $(this).data('method', 'delete')
         }
 
-        OpenBlight.accounts.showAccountGuide();
+        OpenBlight.users.showUserGuide();
 
       }).bind("ajax:error", function(evt, data, status, xhr){
         //do something with the error here
@@ -104,40 +104,40 @@ OpenBlight.accounts = {
 
         map.addControl(drawControl);
 
-        OpenBlight.accounts.loadPolygon(map);
+        OpenBlight.users.loadPolygon(map);
 
         map.on('drawend', function(e) {
           //popup.setContent(popupContent);
-          OpenBlight.accounts.savePolygon(e);
+          OpenBlight.users.savePolygon(e);
           //e.target.openPopup(popup);
         });
     });
   },
 
-  createAccountsMap: function(){
+  createUsersMap: function(){
     var ready = wax.tilejson('http://a.tiles.mapbox.com/v3/cfaneworleans.NewOrleansPostGIS.jsonp',function(tilejson) {
       var y = 29.96;
       var x = -90.08;
       var zoom = 13;
 
-      OpenBlight.accounts.map = new L.Map('map', {
+      OpenBlight.users.map = new L.Map('map', {
         touchZoom: false,
         scrollWheelZoom: false,
         boxZoom: false
       });
 
 
-      OpenBlight.accounts.map.addLayer(new wax.leaf.connector(tilejson))
-      OpenBlight.accounts.map.setView(new L.LatLng(y , x), zoom);
+      OpenBlight.users.map.addLayer(new wax.leaf.connector(tilejson))
+      OpenBlight.users.map.setView(new L.LatLng(y , x), zoom);
 
-      var json_path = '/accounts.json'
-      OpenBlight.accounts.populateMap(json_path);
+      var json_path = '/users.json'
+      OpenBlight.users.populateMap(json_path);
     });
   },
 
   populateMap: function(json_path){
     jQuery.getJSON(json_path, {}, function(data) {
-      OpenBlight.accounts.markers = [];
+      OpenBlight.users.markers = [];
 
       var features = [];
       var icon = OpenBlight.addresses.getCustomIcon('dotmarker');
@@ -149,7 +149,7 @@ OpenBlight.accounts = {
       var current_feature_id = 0;
       L.geoJson(features, {
         pointToLayer: function (feature, latlng) {
-          OpenBlight.accounts.markers.push( latlng );          
+          OpenBlight.users.markers.push( latlng );          
           return L.marker(latlng, {icon: new icon() });
         },
 
@@ -164,9 +164,9 @@ OpenBlight.accounts = {
           });
         }
 
-      }).addTo(OpenBlight.accounts.map);
+      }).addTo(OpenBlight.users.map);
 
-      OpenBlight.accounts.map.fitBounds(OpenBlight.accounts.markers);
+      OpenBlight.users.map.fitBounds(OpenBlight.users.markers);
     });
   },
 
@@ -184,7 +184,7 @@ OpenBlight.accounts = {
   },
   
   loadPolygon: function (map){
-    $.getJSON('/accounts/map.json', function(geojsonFeature) {
+    $.getJSON('/users/map.json', function(geojsonFeature) {
       var geojsonLayer = new L.GeoJSON();
       geojsonLayer.addGeoJSON(geojsonFeature);
       map.addLayer(geojsonLayer);

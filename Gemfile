@@ -18,7 +18,6 @@ gem 'devise-async'
 gem 'lama', :git => 'https://github.com/gangleton/lama.git'
 gem 'savon'
 gem 'httpclient', "~> 2.3.0"
-# gem 'mechanize'
 
 gem 'delayed_job_active_record'
 

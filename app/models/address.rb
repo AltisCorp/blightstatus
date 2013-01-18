@@ -7,6 +7,7 @@ class Address < ActiveRecord::Base
   belongs_to :neighborhood
   belongs_to :street
   has_many :cases
+  belongs_to :municipality
   # has_many :demolitions
   # has_many :foreclosures
   # has_many :maintenances
@@ -26,6 +27,8 @@ class Address < ActiveRecord::Base
   validates_uniqueness_of :address_id
 
   scope :updated_since, lambda { |time| where("updated_at > ?", time) }
+  scope :municipality, lambda {|municipality| joins(:municipality).where("municipalities.abbrev = ?", municipality)}
+  scope :municipality_and_workflow, lambda {|municipality, workflow| joins(:cases => {:municipality_workflow => [:municipality, :workflow]}).where("municipalities.abbrev = ? and workflows.name = ?", municipality, workflow)}
 
   def cardinal
     if address_long.match(' (W|E|N|S) ')
@@ -168,5 +171,9 @@ class Address < ActiveRecord::Base
 
   def load_open_cases
     self.cases.select{|kase| kase.state.downcase =~ /open/}.each{|kase| kase.load_case}
+  end
+
+   def load_open_cases(workflow)
+    self.cases.workflow(workflow).select{|kase| kase.state.downcase =~ /open/}.each{|kase| kase.load_case}
   end
 end

@@ -15,6 +15,10 @@ class AddressesController < ApplicationController
   end
 
   def show
+    @city = request.subdomain.split('.').last
+    @workflow = params[:workflow]
+    puts "city => #{@city}"
+    puts "workflow => #{@workflow}"
     if account_signed_in?
       @account = current_account
       @account_subscribed = !@account.subscriptions.where(:address_id => params[:id]).empty?
@@ -22,7 +26,7 @@ class AddressesController < ApplicationController
     puts "Request:"
     puts request.subdomain.inspect
     @address = Address.find(params[:id])
-    @address.load_open_cases
+    @address.load_open_cases#(city,workflow)
 
     # if APP_CONFIG['demo_page_id'] == @address.id
     #   render :action => 'show-demo'

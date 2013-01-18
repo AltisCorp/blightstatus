@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130117014246) do
+ActiveRecord::Schema.define(:version => 20130118012553) do
 
   create_table "accounts", :force => true do |t|
     t.string   "email",                  :default => "",   :null => false
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(:version => 20130117014246) do
     t.string   "latest_type"
     t.integer  "latest_id"
     t.integer  "double_id"
+    t.integer  "municipality_id"
   end
 
   add_index "addresses", ["address_long"], :name => "index_addresses_on_address_long"
@@ -96,8 +97,8 @@ ActiveRecord::Schema.define(:version => 20130117014246) do
   create_table "cases", :force => true do |t|
     t.string   "case_number"
     t.integer  "geopin"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
     t.integer  "address_id"
     t.string   "state"
     t.integer  "status_id"
@@ -105,27 +106,12 @@ ActiveRecord::Schema.define(:version => 20130117014246) do
     t.text     "dhash"
     t.hstore   "dstore"
     t.datetime "filed"
-    t.integer  "city_workflow_id"
+    t.integer  "municipality_workflow_id"
   end
 
   add_index "cases", ["address_id"], :name => "index_cases_on_address_id"
   add_index "cases", ["case_number"], :name => "index_cases_on_case_number"
   add_index "cases", ["dstore"], :name => "cases_gin_dstore"
-
-  create_table "cities", :force => true do |t|
-    t.string   "name"
-    t.string   "abbrev"
-    t.integer  "state_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  create_table "city_workflows", :force => true do |t|
-    t.integer  "city_id"
-    t.integer  "workflow_id"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
-  end
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -169,6 +155,21 @@ ActiveRecord::Schema.define(:version => 20130117014246) do
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "municipalities", :force => true do |t|
+    t.string   "name"
+    t.string   "abbrev"
+    t.integer  "state_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "municipality_workflows", :force => true do |t|
+    t.integer  "municipality_id"
+    t.integer  "workflow_id"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
 
   create_table "neighborhoods", :force => true do |t|

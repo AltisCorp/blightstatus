@@ -3,6 +3,48 @@ Blightstatus::Application.routes.draw do
   devise_for :admins
   devise_for :accounts
 
+
+  scope ":workflow" do
+    resources :subscriptions
+
+    get "statistics/show"
+    match "addresses/search" => "addresses#search"
+    match "addresses/map_search" => "addresses#map_search"
+    match "addresses/addresses_with_case" => "addresses#addresses_with_case"
+    match "addresses/redirect_latlong" => "addresses#redirect_latlong"
+
+    match "browse" => "statistics#browse"
+    match "stats/browse" => "statistics#browse"
+
+    match "health/cases/incomplete" => "health#cases_incomplete"
+    match "health/cases/orphans" => "health#cases_orphan"
+    match "health/cases/missing" => "health#cases_missing"
+
+    resources :accounts, :except => [:destroy, :create, :edit] do
+      collection do
+        get :map
+        post :notify
+      end
+    end
+    
+    resources :addresses, :except => [:destroy, :create, :edit] do
+      collection do
+        get :autocomplete_address_address_long
+      end
+    end
+
+    resources :streets, :except => [:destroy, :create, :edit] do
+      collection do
+        get :autocomplete_street_full_name
+      end
+    end
+    
+    resources :cases, :except => [:destroy, :create, :edit]
+    
+    match "pages/:id" => "pages#show", :as => "page" 
+    
+    root :to => 'home#index'
+  end
   resources :subscriptions
 
   get "statistics/show"
@@ -96,9 +138,10 @@ Blightstatus::Application.routes.draw do
   # root :to => 'welcome#index'
   root :to => 'home#index'
 
-  # See how all your routes lay out with "rake routes"
 
-  # This is a legacy wild controller route that's not recommended for RESTful applications.
-  # Note: This route will make all actions in every controller accessible via GET requests.
-  # match ':controller(/:action(/:id))(.:format)'
+    # See how all your routes lay out with "rake routes"
+
+    # This is a legacy wild controller route that's not recommended for RESTful applications.
+    # Note: This route will make all actions in every controller accessible via GET requests.
+    # match ':controller(/:action(/:id))(.:format)'
 end

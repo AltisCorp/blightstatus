@@ -8,11 +8,15 @@ class Case < ActiveRecord::Base
   # after_initialize :filter_events
 
   belongs_to :address
-  belongs_to :city_workflow
+  belongs_to :municipality_workflow
   has_many :events, :foreign_key => :case_number, :primary_key => :case_number
 
   validates_presence_of :case_number
   validates_uniqueness_of :case_number
+  
+  scope :municipality_and_workflow, lambda {|municipality, workflow| joins(:municipality_workflow => [:municipality, :workflow]).where("municipalities.abbrev = ? and workflows.name = ?", municipality, workflow)}
+  scope :workflow, lambda {|municipality, workflow| joins(:municipality_workflow => :workflow).where("workflows.name = ?", workflow)}
+  scope :municipality, lambda {|municipality| joins(:municipality_workflow => :municipality).where("municipalities.abbrev = ?", municipality)}
   
   def set_details
     self.dstore = @dhash

@@ -19,9 +19,10 @@ class AddressesController < ApplicationController
     @workflow = params[:workflow]
     puts "city => #{@city}"
     puts "workflow => #{@workflow}"
-    if account_signed_in?
-      @account = current_account
-      @account_subscribed = !@account.subscriptions.where(:address_id => params[:id]).empty?
+   
+    if user_signed_in?
+      @user = current_user
+      @user_subscribed = !@user.subscriptions.where(:address_id => params[:id]).empty?
     end
     puts "Request:"
     puts request.subdomain.inspect
@@ -31,11 +32,11 @@ class AddressesController < ApplicationController
     # if APP_CONFIG['demo_page_id'] == @address.id
     #   render :action => 'show-demo'
     # else
-      #respond_with(@address, @account_subscribed)
+      #respond_with(@address, @user_subscribed)
     # end
     respond_to do |format|
         format.html
-        format.json { render :json => {:address => @address, :account => @account}}
+        format.json { render :json => {:address => @address, :user => @user}}
       end
   end
 

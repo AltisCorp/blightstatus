@@ -26,7 +26,7 @@ OpenBlight.addresses = {
 
     OpenBlight.addresses.highlightCaseHistory();
     OpenBlight.addresses.mapAddresses();
-    OpenBlight.accounts.subscriptionButton();
+    OpenBlight.users.subscriptionButton();
     OpenBlight.addresses.showHistory();
     OpenBlight.addresses.toggleShowViolations();
 

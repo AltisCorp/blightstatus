@@ -1,4 +1,5 @@
-class Account < ActiveRecord::Base
+class User < ActiveRecord::Base
+  ROLES = %w[root staff citizen banned]
   attr_accessible :email, :password, :password_confirmation, :remember_me, :send_notifications
 
   has_many :subscriptions
@@ -7,7 +8,7 @@ class Account < ActiveRecord::Base
   accepts_nested_attributes_for :subscriptions, :allow_destroy => true
 
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
+         :recoverable, :rememberable, :trackable, :validatable, :async
 
   include Devise::Async::Model
 

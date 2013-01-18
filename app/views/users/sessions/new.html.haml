@@ -3,7 +3,7 @@
   .span10
     %ul.nav.nav-tabs.account-tabs
       %li
-        =link_to "Need an account? SIGN UP", new_account_registration_path
+        =link_to "Need an account? SIGN UP", new_user_registration_path
       %li.active
         =link_to "Have an account? LOG IN", "#"
     .tab-content.tab-pane-content
@@ -26,4 +26,4 @@
           %div= f.submit "Log in", :class => 'btn btn-primary'
         %div
           Don't have an account yet?
-          =link_to " Create one", new_account_registration_path
+          =link_to " Create one", new_user_registration_path

@@ -2,7 +2,7 @@ development: &DEVELOPMENT
   adapter:  postgis
   # postgis_extension: true
   encoding: unicode
-  database: blightstatus_be
+  database: blightstatus_dev
   username: postgres
   template: template_postgis
   pool: 5

@@ -25,7 +25,7 @@ OpenBlight = {
       $('.dropdown-menu form').submit(function(e){
         e.preventDefault();
         var $this = $(this);
-        var req = $.post("/accounts/sign_in", $this.serialize(), function(data){
+        var req = $.post("/users/sign_in", $this.serialize(), function(data){
           location.reload();
         });
         req.error(function(){

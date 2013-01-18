@@ -1,7 +1,7 @@
 Blightstatus::Application.routes.draw do
 
   devise_for :admins
-  devise_for :accounts
+  devise_for :users
 
 
   scope ":workflow" do
@@ -46,8 +46,8 @@ Blightstatus::Application.routes.draw do
     root :to => 'home#index'
   end
   resources :subscriptions
+  resources :pages
 
-  get "statistics/show"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -69,13 +69,12 @@ Blightstatus::Application.routes.draw do
   match "addresses/redirect_latlong" => "addresses#redirect_latlong"
 
   match "browse" => "statistics#browse"
-  match "stats/browse" => "statistics#browse"
 
-  match "health/cases/incomplete" => "health#cases_incomplete"
-  match "health/cases/orphans" => "health#cases_orphan"
-  match "health/cases/missing" => "health#cases_missing"
+  # match "health/cases/incomplete" => "health#cases_incomplete"
+  # match "health/cases/orphans" => "health#cases_orphan"
+  # match "health/cases/missing" => "health#cases_missing"
 
-  resources :accounts, :except => [:destroy, :create, :edit] do
+  resources :users, :except => [:destroy, :create, :edit] do
     collection do
       get :map
       post :notify
@@ -97,8 +96,10 @@ Blightstatus::Application.routes.draw do
   resources :cases, :except => [:destroy, :create, :edit]
 
 
+  match "/accounts" => redirect("/users")
+
   # match "cases/:case_type" => "cases#index", :as => "case"   
-  match "pages/:id" => "pages#show", :as => "page" 
+  # match "pages/:id" => "pages#show", :as => "page" 
 
   # Sample resource route with options:
   #   resources :products do

@@ -13,25 +13,6 @@
 
 ActiveRecord::Schema.define(:version => 20130118012553) do
 
-  create_table "accounts", :force => true do |t|
-    t.string   "email",                  :default => "",   :null => false
-    t.string   "encrypted_password",     :default => "",   :null => false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          :default => 0
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.datetime "created_at",                               :null => false
-    t.datetime "updated_at",                               :null => false
-    t.boolean  "send_notifications",     :default => true
-  end
-
-  add_index "accounts", ["email"], :name => "index_accounts_on_email", :unique => true
-  add_index "accounts", ["reset_password_token"], :name => "index_accounts_on_reset_password_token", :unique => true
-
   create_table "addresses", :force => true do |t|
     t.integer  "geopin"
     t.integer  "address_id"
@@ -68,24 +49,6 @@ ActiveRecord::Schema.define(:version => 20130118012553) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
-
-  create_table "admins", :force => true do |t|
-    t.string   "email",                  :default => "", :null => false
-    t.string   "encrypted_password",     :default => "", :null => false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
-    t.integer  "sign_in_count",          :default => 0
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string   "current_sign_in_ip"
-    t.string   "last_sign_in_ip"
-    t.datetime "created_at",                             :null => false
-    t.datetime "updated_at",                             :null => false
-  end
-
-  add_index "admins", ["email"], :name => "index_admins_on_email", :unique => true
-  add_index "admins", ["reset_password_token"], :name => "index_admins_on_reset_password_token", :unique => true
 
   create_table "case_managers", :force => true do |t|
     t.datetime "created_at",  :null => false
@@ -182,6 +145,16 @@ ActiveRecord::Schema.define(:version => 20130118012553) do
     t.datetime "created_at",                                           :null => false
     t.datetime "updated_at",                                           :null => false
     t.spatial  "the_geom",   :limit => {:srid=>-1, :type=>"geometry"}
+  end
+
+  create_table "pages", :force => true do |t|
+    t.integer  "site_id"
+    t.string   "slug"
+    t.string   "title"
+    t.string   "template"
+    t.text     "body"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "parcels", :force => true do |t|
@@ -378,13 +351,33 @@ ActiveRecord::Schema.define(:version => 20130118012553) do
 
   create_table "subscriptions", :force => true do |t|
     t.integer  "address_id"
-    t.integer  "account_id"
+    t.integer  "user_id"
     t.string   "notes"
     t.datetime "created_at",                                              :null => false
     t.datetime "updated_at",                                              :null => false
     t.spatial  "thegeom",       :limit => {:srid=>-1, :type=>"geometry"}
     t.datetime "date_notified"
   end
+
+  create_table "users", :force => true do |t|
+    t.string   "email",                  :default => "",   :null => false
+    t.string   "encrypted_password",     :default => "",   :null => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          :default => 0
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.datetime "created_at",                               :null => false
+    t.datetime "updated_at",                               :null => false
+    t.boolean  "send_notifications",     :default => true
+    t.string   "role"
+  end
+
+  add_index "users", ["email"], :name => "index_accounts_on_email", :unique => true
+  add_index "users", ["reset_password_token"], :name => "index_accounts_on_reset_password_token", :unique => true
 
   create_table "workflows", :force => true do |t|
     t.string   "name"

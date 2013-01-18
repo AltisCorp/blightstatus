@@ -1,20 +1,20 @@
-class AccountsController < ApplicationController
-  before_filter :authenticate_account!
+class UsersController < ApplicationController
+  before_filter :authenticate_user!
   respond_to :html, :json
 
   def index
-    @account = current_account
-    @account_subcriptions = @account.addresses
+    @user = current_user
+    @user_subcriptions = @user.addresses
 
     respond_to do |format|
       format.html
-      format.json { render :json => @account_subcriptions.to_json }
+      format.json { render :json => @user_subcriptions.to_json }
     end
   end
 
   def map
-    @account = current_account
-    @polygon_subcriptions = Subscription.where(:account_id => @account.id)
+    @user = current_user
+    @polygon_subcriptions = Subscription.where(:user_id => @user.id)
 
     polygon = Subscription.last.thegeom
     geojson = RGeo::GeoJSON::encode(polygon)
@@ -26,8 +26,8 @@ class AccountsController < ApplicationController
   end
 
   def notify
-    @account = current_account
-    if @account.update_attributes(params[:account])
+    @user = current_user
+    if @user.update_attributes(params[:user])
       render :json => {:saved => true}
     else
       render :json => {:saved => false}

@@ -38,8 +38,8 @@ module ForeclosureHelpers
 				end
 			end
 		rescue Exception=>ex
-          	puts "THERE WAS AN EXCEPTION OF TYPE #{ex.class}, which told us that #{ex.message}"
-        	puts "Backtrace => #{ex.backtrace}"
-        end
+			puts "THERE WAS AN EXCEPTION OF TYPE #{ex.class}, which told us that #{ex.message}"
+			puts "Backtrace => #{ex.backtrace}"
+    end
 	end
 end
